@@ -26,12 +26,12 @@ export default function App() {
   }, []);
 
   const handleShare = async () => {
-    const textToShare = `"${compliment}"\n— Дневное Сияние, День ${dayOfYear}`;
+    const textToShare = `"${compliment}"\n— Ежедневный комплимент, День ${dayOfYear}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Дневное Сияние',
+          title: 'Ежедневный комплимент',
           text: textToShare,
         });
       } catch (err) {
@@ -62,7 +62,7 @@ export default function App() {
       <header className="flex justify-between items-start w-full z-10">
         <div className="flex items-start h-24">
           <div className="w-[1px] h-full bg-[var(--color-line)] mr-5 md:mr-8"></div>
-          <div className="micro-label text-[var(--color-accent)] pt-1">ДНЕВНОЕ СИЯНИЕ</div>
+          <div className="micro-label text-[var(--color-accent)] pt-1">Ежедневный комплимент</div>
         </div>
         <div className="micro-label text-[var(--color-text-muted)] pt-1 tracking-[0.2em]">{formattedDate}</div>
       </header>
