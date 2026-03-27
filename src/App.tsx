@@ -54,34 +54,34 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-6 md:p-12 lg:p-16 relative overflow-hidden bg-[var(--color-surface)] text-[var(--color-text-primary)] selection:bg-[var(--color-accent)] selection:text-white">
+    <div className="h-[100dvh] w-full flex flex-col justify-between p-5 sm:p-8 md:p-12 lg:p-16 relative overflow-hidden bg-[var(--color-surface)] text-[var(--color-text-primary)] selection:bg-[var(--color-accent)] selection:text-white">
       {/* Grain Texture Overlay */}
       <div className="grain-overlay"></div>
 
       {/* Header - Swiss Style with Structural Line */}
-      <header className="flex justify-between items-start w-full z-10">
-        <div className="flex items-start h-24">
-          <div className="w-[1px] h-full bg-[var(--color-line)] mr-5 md:mr-8"></div>
+      <header className="flex justify-between items-start w-full z-10 shrink-0">
+        <div className="flex items-start h-12 sm:h-16 md:h-24">
+          <div className="w-[1px] h-full bg-[var(--color-line)] mr-4 md:mr-8"></div>
           <div className="micro-label text-[var(--color-accent)] pt-1">Ежедневный комплимент</div>
         </div>
         <div className="micro-label text-[var(--color-text-muted)] pt-1 tracking-[0.2em]">{formattedDate}</div>
       </header>
 
       {/* Main Content - Centered, Elegant Typography */}
-      <main className="flex-1 flex items-center justify-center w-full py-16 md:py-24 z-10">
+      <main className="flex-1 flex items-center justify-center w-full py-6 sm:py-8 min-h-0 z-10">
         <motion.h1 
           initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="editorial-headline text-center text-4xl md:text-6xl lg:text-[5.5rem] max-w-5xl mx-auto px-4"
+          className="editorial-headline text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[5.5rem] max-w-5xl mx-auto px-2 sm:px-4 text-balance"
         >
           {compliment}
         </motion.h1>
       </main>
 
       {/* Footer - Minimalist */}
-      <footer className="flex justify-between items-end w-full z-10">
-        <div className="flex items-center gap-6 pb-2">
+      <footer className="flex justify-between items-end w-full z-10 shrink-0">
+        <div className="flex items-center gap-4 sm:gap-6 pb-2">
           <button 
             onClick={handleShare}
             className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 -ml-2 rounded-full hover:bg-black/5"
@@ -95,7 +95,7 @@ export default function App() {
         </div>
         
         {/* Right Structural Line for Balance */}
-        <div className="w-[1px] h-24 bg-[var(--color-line)]"></div>
+        <div className="w-[1px] h-12 sm:h-16 md:h-24 bg-[var(--color-line)]"></div>
       </footer>
 
       {/* Elegant Toast Notification */}
