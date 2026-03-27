@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#F6F5F0"/>
-  <rect x="32" y="32" width="448" height="448" fill="none" stroke="#A38A58" stroke-width="8"/>
-  <text x="256" y="290" font-family="Georgia, 'Times New Roman', serif" font-size="340" font-style="italic" fill="#111111" text-anchor="middle" dominant-baseline="middle">Е</text>
+  <g transform="translate(64, 64) scale(0.75)">
+    <path d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.22 97.918 64 162.4 64c36.326 0 70.49 16.735 93.6 43.947C279.11 80.735 313.274 64 349.6 64 414.082 64 464 114.22 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z" fill="#A38A58"/>
+  </g>
 </svg>
