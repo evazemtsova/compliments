@@ -83,6 +83,48 @@ export default function App() {
     <div className="h-[100dvh] w-full flex flex-col justify-between p-5 sm:p-8 md:p-12 lg:p-16 relative overflow-hidden bg-[var(--color-surface)] text-[var(--color-text-primary)] selection:bg-[var(--color-accent)] selection:text-white">
       <div className="grain-overlay"></div>
 
+      {/* Mobile: полноэкранный оверлей для ввода имени и настроения */}
+      <AnimatePresence>
+        {showInput && (
+          <motion.div
+            className="sm:hidden fixed inset-0 z-20 flex flex-col justify-center px-8 bg-[var(--color-surface)]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="micro-label text-[var(--color-accent)] mb-10">персональный комплимент</div>
+            <input
+              autoFocus
+              placeholder="Твоё имя..."
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="editorial-headline text-3xl bg-transparent border-b border-[var(--color-line)] outline-none w-full pb-3 placeholder:text-[var(--color-text-muted)]"
+            />
+            <div className="flex flex-col mt-8">
+              <button
+                onClick={() => handleMoodSelect('tired')}
+                className="micro-label text-left text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)]"
+              >
+                немного устала
+              </button>
+              <button
+                onClick={() => handleMoodSelect('good')}
+                className="micro-label text-left text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)]"
+              >
+                всё хорошо
+              </button>
+            </div>
+            <button
+              onClick={() => { setShowInput(false); setMood(null); }}
+              className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity mt-8 self-start"
+            >
+              отмена
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="flex justify-between items-start w-full z-10 shrink-0">
         <div className="flex items-start h-12 sm:h-16 md:h-24">
@@ -131,7 +173,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="flex justify-between items-end w-full z-10 shrink-0">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-6 pb-2">
+        <div className="flex items-center gap-4 sm:gap-6 pb-2">
           <button
             onClick={handleShare}
             className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 -ml-2 rounded-full hover:bg-black/5"
@@ -144,33 +186,51 @@ export default function App() {
             ДЕНЬ {dayOfYear} ИЗ 365
           </div>
 
-          {/* AI блок */}
-          <AnimatePresence mode="wait">
-            {showInput ? (
-              <motion.div
-                key="input"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto"
-              >
-                <div className="flex items-center gap-2">
+          {/* Mobile: всегда иконки, оверлей открывается отдельно */}
+          <div className="sm:hidden flex items-center gap-2">
+            <AnimatePresence>
+              {aiCompliment && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => generateAiCompliment()}
+                  disabled={loading}
+                  className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+                  aria-label="Ещё комплимент"
+                >
+                  <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={() => setShowInput(true)}
+              className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+              aria-label="Персональный комплимент"
+            >
+              <Sparkles className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {/* Desktop: переключение между инпутом и иконками */}
+          <div className="hidden sm:block">
+            <AnimatePresence mode="wait">
+              {showInput ? (
+                <motion.div
+                  key="input"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="flex items-center gap-3"
+                >
                   <input
                     autoFocus
                     placeholder="Твоё имя..."
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none flex-1 sm:flex-none sm:w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
+                    className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
                   />
-                  <button
-                    onClick={() => { setShowInput(false); setMood(null); }}
-                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity sm:hidden"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="micro-label text-[var(--color-text-muted)] hidden sm:inline">—</span>
+                  <span className="micro-label text-[var(--color-text-muted)]">—</span>
                   <button
                     onClick={() => handleMoodSelect('tired')}
                     className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
@@ -186,43 +246,41 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => { setShowInput(false); setMood(null); }}
-                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1 hidden sm:inline"
+                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1"
                   >
                     ✕
                   </button>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div key="icons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
-                {/* Кнопка "Ещё" — только если уже есть AI комплимент */}
-                <AnimatePresence>
-                  {aiCompliment && (
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      onClick={() => generateAiCompliment()}
-                      disabled={loading}
-                      className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
-                      aria-label="Ещё комплимент"
-                      title="Ещё один"
-                    >
-                      <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-
-                <button
-                  onClick={() => setShowInput(true)}
-                  className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
-                  aria-label="Персональный комплимент"
-                  title="Персональный комплимент"
-                >
-                  <Sparkles className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              ) : (
+                <motion.div key="icons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                  <AnimatePresence>
+                    {aiCompliment && (
+                      <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        onClick={() => generateAiCompliment()}
+                        disabled={loading}
+                        className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+                        aria-label="Ещё комплимент"
+                        title="Ещё один"
+                      >
+                        <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                  <button
+                    onClick={() => setShowInput(true)}
+                    className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+                    aria-label="Персональный комплимент"
+                    title="Персональный комплимент"
+                  >
+                    <Sparkles className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="w-[1px] h-12 sm:h-16 md:h-24 bg-[var(--color-line)]"></div>
