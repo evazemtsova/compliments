@@ -1,7 +1,9 @@
-import { Share2, Sparkles } from 'lucide-react';
+import { Share2, Sparkles, RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { compliments } from './lib/compliments';
+
+type Mood = 'tired' | 'good' | null;
 
 export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -9,6 +11,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [mood, setMood] = useState<Mood>(null);
+  const [lastParams, setLastParams] = useState<{ name: string; mood: Mood } | null>(null);
 
   const { dayOfYear, formattedDate, compliment } = useMemo(() => {
     const now = new Date();
@@ -22,27 +26,34 @@ export default function App() {
     return { dayOfYear: day, formattedDate: dateStr, compliment: text };
   }, []);
 
-  // Показываем AI-комплимент если он есть, иначе дневной
   const displayedCompliment = aiCompliment ?? compliment;
 
-  const generateAiCompliment = async () => {
+  const generateAiCompliment = async (params?: { name: string; mood: Mood }) => {
+    const p = params ?? lastParams ?? { name: '', mood: null };
+    setLastParams(p);
     setLoading(true);
     setAiCompliment(null);
     try {
       const res = await fetch('/api/compliment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({ name: p.name.trim(), mood: p.mood }),
       });
       const data = await res.json();
       setAiCompliment(data.compliment);
       setShowInput(false);
+      setMood(null);
     } catch {
       setToastMessage('Что-то пошло не так');
       setTimeout(() => setToastMessage(null), 3000);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMoodSelect = (selectedMood: Mood) => {
+    setMood(selectedMood);
+    generateAiCompliment({ name, mood: selectedMood });
   };
 
   const handleShare = async () => {
@@ -86,16 +97,35 @@ export default function App() {
       {/* Main */}
       <main className="flex-1 flex items-center justify-center w-full py-6 sm:py-8 min-h-0 z-10">
         <AnimatePresence mode="wait">
-          <motion.h1
-            key={displayedCompliment}
-            initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="editorial-headline text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[5.5rem] max-w-5xl mx-auto px-2 sm:px-4 text-balance"
-          >
-            {loading ? '...' : displayedCompliment}
-          </motion.h1>
+          {loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex gap-2 items-center"
+            >
+              {[0, 1, 2].map(i => (
+                <motion.span
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]"
+                  animate={{ opacity: [0.2, 1, 0.2] }}
+                  transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2 }}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.h1
+              key={displayedCompliment}
+              initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="editorial-headline text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[5.5rem] max-w-5xl mx-auto px-2 sm:px-4 text-balance"
+            >
+              {displayedCompliment}
+            </motion.h1>
+          )}
         </AnimatePresence>
       </main>
 
@@ -109,52 +139,78 @@ export default function App() {
           >
             <Share2 className="w-5 h-5" strokeWidth={1.5} />
           </button>
+
           <div className="micro-label text-[var(--color-text-muted)]">
             ДЕНЬ {dayOfYear} ИЗ 365
           </div>
 
-          {/* AI кнопка */}
-          <AnimatePresence>
+          {/* AI блок */}
+          <AnimatePresence mode="wait">
             {showInput ? (
               <motion.div
+                key="input"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-3"
               >
                 <input
                   autoFocus
                   placeholder="Твоё имя..."
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && generateAiCompliment()}
                   className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
                 />
+                <span className="micro-label text-[var(--color-text-muted)]">—</span>
                 <button
-                  onClick={generateAiCompliment}
-                  disabled={loading}
-                  className="micro-label text-[var(--color-accent)] hover:opacity-70 transition-opacity"
+                  onClick={() => handleMoodSelect('tired')}
+                  className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
                 >
-                  {loading ? '...' : '→'}
+                  немного устала
+                </button>
+                <span className="micro-label text-[var(--color-line)]">/</span>
+                <button
+                  onClick={() => handleMoodSelect('good')}
+                  className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
+                >
+                  всё хорошо
                 </button>
                 <button
-                  onClick={() => setShowInput(false)}
-                  className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity"
+                  onClick={() => { setShowInput(false); setMood(null); }}
+                  className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1"
                 >
                   ✕
                 </button>
               </motion.div>
             ) : (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setShowInput(true)}
-                className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
-                aria-label="Персональный комплимент"
-                title="Получить персональный комплимент"
-              >
-                <Sparkles className="w-5 h-5" strokeWidth={1.5} />
-              </motion.button>
+              <motion.div key="icons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
+                {/* Кнопка "Ещё" — только если уже есть AI комплимент */}
+                <AnimatePresence>
+                  {aiCompliment && (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      onClick={() => generateAiCompliment()}
+                      disabled={loading}
+                      className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+                      aria-label="Ещё комплимент"
+                      title="Ещё один"
+                    >
+                      <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                <button
+                  onClick={() => setShowInput(true)}
+                  className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 rounded-full hover:bg-black/5"
+                  aria-label="Персональный комплимент"
+                  title="Персональный комплимент"
+                >
+                  <Sparkles className="w-5 h-5" strokeWidth={1.5} />
+                </button>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
