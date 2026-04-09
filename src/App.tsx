@@ -131,7 +131,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="flex justify-between items-end w-full z-10 shrink-0">
-        <div className="flex items-center gap-4 sm:gap-6 pb-2">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 pb-2">
           <button
             onClick={handleShare}
             className="hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-muted)] p-2 -ml-2 rounded-full hover:bg-black/5"
@@ -152,35 +152,45 @@ export default function App() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="flex items-center gap-3"
+                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto"
               >
-                <input
-                  autoFocus
-                  placeholder="Твоё имя..."
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
-                />
-                <span className="micro-label text-[var(--color-text-muted)]">—</span>
-                <button
-                  onClick={() => handleMoodSelect('tired')}
-                  className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
-                >
-                  немного устала
-                </button>
-                <span className="micro-label text-[var(--color-line)]">/</span>
-                <button
-                  onClick={() => handleMoodSelect('good')}
-                  className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
-                >
-                  всё хорошо
-                </button>
-                <button
-                  onClick={() => { setShowInput(false); setMood(null); }}
-                  className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    placeholder="Твоё имя..."
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none flex-1 sm:flex-none sm:w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
+                  />
+                  <button
+                    onClick={() => { setShowInput(false); setMood(null); }}
+                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity sm:hidden"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="micro-label text-[var(--color-text-muted)] hidden sm:inline">—</span>
+                  <button
+                    onClick={() => handleMoodSelect('tired')}
+                    className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
+                  >
+                    немного устала
+                  </button>
+                  <span className="micro-label text-[var(--color-line)]">/</span>
+                  <button
+                    onClick={() => handleMoodSelect('good')}
+                    className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
+                  >
+                    всё хорошо
+                  </button>
+                  <button
+                    onClick={() => { setShowInput(false); setMood(null); }}
+                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1 hidden sm:inline"
+                  >
+                    ✕
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <motion.div key="icons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">

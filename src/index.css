@@ -40,6 +40,13 @@ body {
   letter-spacing: -0.02em;
 }
 
+@media (max-width: 639px) {
+  .editorial-headline {
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+}
+
 .micro-label {
   font-family: var(--font-sans);
   font-size: 10px;
