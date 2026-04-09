@@ -87,7 +87,7 @@ export default function App() {
       <AnimatePresence>
         {showInput && (
           <motion.div
-            className="sm:hidden fixed inset-0 z-20 flex flex-col justify-center px-8 bg-[var(--color-surface)]"
+            className="sm:hidden fixed inset-0 z-20 flex flex-col justify-start pt-20 px-8 bg-[var(--color-surface)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -102,17 +102,20 @@ export default function App() {
               className="editorial-headline text-3xl bg-transparent border-b border-[var(--color-line)] outline-none w-full pb-3 placeholder:text-[var(--color-text-muted)]"
             />
             <div className="flex flex-col mt-8">
+              <div className="micro-label text-[var(--color-text-muted)] mb-4">как ты сейчас?</div>
               <button
                 onClick={() => handleMoodSelect('tired')}
-                className="micro-label text-left text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)]"
+                className="micro-label text-left text-[var(--color-text-primary)] hover:text-[var(--color-accent)] active:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)] flex justify-between items-center"
               >
                 немного устала
+                <span className="text-[var(--color-text-muted)]">→</span>
               </button>
               <button
                 onClick={() => handleMoodSelect('good')}
-                className="micro-label text-left text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)]"
+                className="micro-label text-left text-[var(--color-text-primary)] hover:text-[var(--color-accent)] active:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)] flex justify-between items-center"
               >
                 всё хорошо
+                <span className="text-[var(--color-text-muted)]">→</span>
               </button>
             </div>
             <button
