@@ -9,7 +9,6 @@ type Props = {
   initialCompliment?: string | null;
   onMetacard: (result: { name: string; mood: Mood; compliment: string }) => void;
   onComplimentReady: (result: { name: string; mood: Mood; compliment: string }) => void;
-  onShare?: (text: string) => void;
 };
 
 export function OnboardingFlow({
@@ -18,7 +17,6 @@ export function OnboardingFlow({
   initialCompliment = null,
   onMetacard,
   onComplimentReady,
-  onShare,
 }: Props) {
   const hasSaved = !!(initialCompliment && initialMood);
   const [step, setStep] = useState<0 | 1 | 2 | 3>(hasSaved ? 3 : 0);
@@ -280,16 +278,6 @@ export function OnboardingFlow({
                     Метакарта дня
                   </button>
                 </div>
-                {onShare && (
-                  <div className="mt-3 text-center">
-                    <button
-                      onClick={() => onShare(compliment)}
-                      className="btn-ghost"
-                    >
-                      поделиться
-                    </button>
-                  </div>
-                )}
               </>
             )}
           </motion.div>

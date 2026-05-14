@@ -42,16 +42,10 @@ export default function App() {
   });
   // Bumped on "Новая сессия" to force OnboardingFlow to remount with cleared state.
   const [sessionKey, setSessionKey] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     writeLS(KEY_NAME, name || null);
   }, [name]);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    window.setTimeout(() => setToast(null), 2200);
-  };
 
   const persistRitual = (n: string, m: Mood, c: string) => {
     writeLS(KEY_NAME, n || null);
@@ -68,27 +62,8 @@ export default function App() {
     setMood(null);
   };
 
-  const handleShare = async (text: string) => {
-    const payload = `«${text}»\n— Персональный комплимент`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Ежедневный комплимент', text: payload });
-        return;
-      } catch {
-        /* fall through to clipboard */
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(payload);
-      showToast('Текст скопирован');
-    } catch {
-      showToast('Не получилось скопировать');
-    }
-  };
-
   return (
-    <>
-      <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait">
         {screen === 'onboarding' && (
           <motion.div
             key={`onboarding-${sessionKey}`}
@@ -114,7 +89,6 @@ export default function App() {
                 persistRitual(n, m, compliment);
                 setScreen('metacard');
               }}
-              onShare={handleShare}
             />
           </motion.div>
         )}
@@ -139,24 +113,6 @@ export default function App() {
             />
           </motion.div>
         )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-2.5 rounded-full micro shadow-2xl"
-            style={{
-              background: 'var(--color-text-primary)',
-              color: 'var(--color-surface)',
-            }}
-          >
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    </AnimatePresence>
   );
 }
