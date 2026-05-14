@@ -103,7 +103,6 @@ export default function App() {
           >
             <MetacardSession
               name={name}
-              mood={mood}
               onBack={() => setScreen('onboarding')}
               onNewSession={() => {
                 clearRitual();

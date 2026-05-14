@@ -7,12 +7,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { card, see, feel, question, answer, name } = (req.body ?? {}) as {
+  const { card, see, feel, name } = (req.body ?? {}) as {
     card?: CardInfo;
     see?: string;
     feel?: string;
-    question?: string;
-    answer?: string;
     name?: string;
   };
 
@@ -23,11 +21,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   };
   const safeSee = typeof see === 'string' ? see.trim().slice(0, 800) : '';
   const safeFeel = typeof feel === 'string' ? feel.trim().slice(0, 800) : '';
-  const safeQ = typeof question === 'string' ? question.trim().slice(0, 600) : '';
-  const safeA = typeof answer === 'string' ? answer.trim().slice(0, 1200) : '';
   const safeName = typeof name === 'string' ? name.trim().slice(0, 40) : '';
 
-  const prompt = `Ты завершаешь короткую проективную сессию с метафорической картой. Твоя задача — дать тихое наблюдение-зеркало по итогу разговора. Это не совет, не диагноз, не комплимент. Это короткое поэтичное отражение того, что человек уже сам прожил в этой сессии.
+  const prompt = `Ты завершаешь короткую проективную сессию с метафорической картой. Твоя задача — дать тихое наблюдение-зеркало по итогу того, что человек увидел и почувствовал, глядя на карту. Это не совет, не диагноз, не комплимент. Это короткое поэтичное отражение того, что человек уже сам прожил.
 
 КРИТИЧНО:
 — НЕ давай советов («попробуй...», «стоит подумать о...», «возможно, тебе нужно...»).
@@ -52,8 +48,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 Карта: «${c.title}», ${c.artist}, ${c.year}.
 Что человек увидел: «${safeSee}»
 Что почувствовал: «${safeFeel}»
-Углубляющий вопрос: «${safeQ}»
-Ответ человека: «${safeA}»
 
 Дай короткое наблюдение-зеркало.`;
 
