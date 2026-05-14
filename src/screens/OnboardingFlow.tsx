@@ -89,14 +89,13 @@ export function OnboardingFlow({
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
               <div className="lg:col-span-7 max-w-[560px] mx-auto lg:mx-0 text-center lg:text-left order-2 lg:order-1">
                 <MicroLabel className="text-accent mb-5 lg:mb-7">
-                  ежедневный ритуал
+                  Тихий ритуал самоподдержки
                 </MicroLabel>
                 <h1 className="t-display mb-6">
-                  Один <em>комплимент</em>
-                  <br />в день.
+                  Это только твоя <em>минута</em>…
                 </h1>
                 <p className="t-lead max-w-md mx-auto lg:mx-0">
-                  Маленький жест самоподдержки. Тёплое слово, написанное именно для тебя — после короткого ритуала.
+                  Маленький жест самоподдержки. Тёплые слова только для тебя.
                 </p>
                 <div className="mt-9 lg:mt-11">
                   <button
@@ -105,7 +104,6 @@ export function OnboardingFlow({
                   >
                     Начать ритуал
                   </button>
-                  <div className="t-hint mt-4 sm:mt-3 hidden sm:block">займёт около двух минут</div>
                 </div>
               </div>
 
