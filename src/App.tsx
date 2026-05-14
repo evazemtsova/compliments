@@ -1,18 +1,54 @@
 import { Share2, Sparkles, RefreshCw } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { compliments } from './lib/compliments';
 
-type Mood = 'tired' | 'good' | null;
+type Mood = 'tired' | 'calm' | 'anxious' | 'seeking' | 'love' | 'flow' | null;
+
+const moodOptions: { id: Exclude<Mood, null>; label: string }[] = [
+  { id: 'tired', label: 'немного устаю' },
+  { id: 'calm', label: 'всё хорошо' },
+  { id: 'anxious', label: 'тревожно' },
+  { id: 'seeking', label: 'ищу ясности' },
+  { id: 'love', label: 'в любви' },
+  { id: 'flow', label: 'в потоке' },
+];
+
+const NAME_KEY = 'compliment:name';
 
 export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [aiCompliment, setAiCompliment] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(() => {
+    try {
+      return localStorage.getItem(NAME_KEY) ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [showInput, setShowInput] = useState(false);
-  const [mood, setMood] = useState<Mood>(null);
   const [lastParams, setLastParams] = useState<{ name: string; mood: Mood } | null>(null);
+
+  useEffect(() => {
+    try {
+      if (name) localStorage.setItem(NAME_KEY, name);
+      else localStorage.removeItem(NAME_KEY);
+    } catch {
+      // ignore quota / private mode
+    }
+  }, [name]);
+
+  const closeOverlay = () => setShowInput(false);
+
+  useEffect(() => {
+    if (!showInput) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeOverlay();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [showInput]);
 
   const { dayOfYear, formattedDate, compliment } = useMemo(() => {
     const now = new Date();
@@ -27,6 +63,7 @@ export default function App() {
   }, []);
 
   const displayedCompliment = aiCompliment ?? compliment;
+  const isAi = aiCompliment !== null;
 
   const generateAiCompliment = async (params?: { name: string; mood: Mood }) => {
     const p = params ?? lastParams ?? { name: '', mood: null };
@@ -42,7 +79,6 @@ export default function App() {
       const data = await res.json();
       setAiCompliment(data.compliment);
       setShowInput(false);
-      setMood(null);
     } catch {
       setToastMessage('Что-то пошло не так');
       setTimeout(() => setToastMessage(null), 3000);
@@ -52,12 +88,17 @@ export default function App() {
   };
 
   const handleMoodSelect = (selectedMood: Mood) => {
-    setMood(selectedMood);
     generateAiCompliment({ name, mood: selectedMood });
   };
 
+  const backToDaily = () => {
+    setAiCompliment(null);
+    setLastParams(null);
+  };
+
   const handleShare = async () => {
-    const textToShare = `"${displayedCompliment}"\n— Ежедневный комплимент, День ${dayOfYear}`;
+    const suffix = isAi ? '— Персональный комплимент' : `— Ежедневный комплимент, День ${dayOfYear}`;
+    const textToShare = `"${displayedCompliment}"\n${suffix}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Ежедневный комплимент', text: textToShare });
@@ -87,11 +128,14 @@ export default function App() {
       <AnimatePresence>
         {showInput && (
           <motion.div
-            className="sm:hidden fixed inset-0 z-20 flex flex-col justify-start pt-20 px-8 bg-[var(--color-surface)]"
+            className="sm:hidden fixed inset-0 z-20 flex flex-col justify-start pt-20 px-8 bg-[var(--color-surface)] overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
+            onClick={e => {
+              if (e.target === e.currentTarget) closeOverlay();
+            }}
           >
             <div className="micro-label text-[var(--color-accent)] mb-10">персональный комплимент</div>
             <input
@@ -99,28 +143,25 @@ export default function App() {
               placeholder="Твоё имя..."
               value={name}
               onChange={e => setName(e.target.value)}
+              maxLength={40}
               className="editorial-headline text-3xl bg-transparent border-b border-[var(--color-line)] outline-none w-full pb-3 placeholder:text-[var(--color-text-muted)]"
             />
-            <div className="flex flex-col mt-8">
+            <div className="flex flex-col mt-8 pb-8">
               <div className="micro-label text-[var(--color-text-muted)] mb-4">как ты сейчас?</div>
-              <button
-                onClick={() => handleMoodSelect('tired')}
-                className="micro-label text-left text-[var(--color-text-primary)] hover:text-[var(--color-accent)] active:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)] flex justify-between items-center"
-              >
-                немного устала
-                <span className="text-[var(--color-text-muted)]">→</span>
-              </button>
-              <button
-                onClick={() => handleMoodSelect('good')}
-                className="micro-label text-left text-[var(--color-text-primary)] hover:text-[var(--color-accent)] active:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)] flex justify-between items-center"
-              >
-                всё хорошо
-                <span className="text-[var(--color-text-muted)]">→</span>
-              </button>
+              {moodOptions.map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => handleMoodSelect(opt.id)}
+                  className="micro-label text-left text-[var(--color-text-primary)] hover:text-[var(--color-accent)] active:text-[var(--color-accent)] transition-colors py-4 border-b border-[var(--color-line)] flex justify-between items-center"
+                >
+                  {opt.label}
+                  <span className="text-[var(--color-text-muted)]">→</span>
+                </button>
+              ))}
             </div>
             <button
-              onClick={() => { setShowInput(false); setMood(null); }}
-              className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity mt-8 self-start"
+              onClick={closeOverlay}
+              className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity mt-2 self-start"
             >
               отмена
             </button>
@@ -133,14 +174,14 @@ export default function App() {
         <div className="flex items-start h-12 sm:h-16 md:h-24">
           <div className="w-[1px] h-full bg-[var(--color-line)] mr-4 md:mr-8"></div>
           <div className="micro-label text-[var(--color-accent)] pt-1">
-            {aiCompliment ? 'Персональный комплимент' : 'Ежедневный комплимент'}
+            {isAi ? 'Персональный комплимент' : 'Ежедневный комплимент'}
           </div>
         </div>
         <div className="micro-label text-[var(--color-text-muted)] pt-1 tracking-[0.2em]">{formattedDate}</div>
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex items-center justify-center w-full py-6 sm:py-8 min-h-0 z-10">
+      <main className="flex-1 flex items-center justify-center w-full py-6 sm:py-8 min-h-0 z-10" aria-live="polite">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div
@@ -189,11 +230,27 @@ export default function App() {
             ДЕНЬ {dayOfYear} ИЗ 365
           </div>
 
-          {/* Mobile: всегда иконки, оверлей открывается отдельно */}
+          {/* Mobile: иконки + кнопка возврата */}
           <div className="sm:hidden flex items-center gap-2">
             <AnimatePresence>
-              {aiCompliment && (
+              {isAi && (
                 <motion.button
+                  key="back-mobile"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={backToDaily}
+                  className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors px-2 py-2"
+                  aria-label="Вернуться к дневному комплименту"
+                >
+                  ← дневной
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {isAi && (
+                <motion.button
+                  key="refresh-mobile"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -215,7 +272,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* Desktop: переключение между инпутом и иконками */}
+          {/* Desktop: инлайн форма с настроениями */}
           <div className="hidden sm:block">
             <AnimatePresence mode="wait">
               {showInput ? (
@@ -224,41 +281,62 @@ export default function App() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
-                  className="flex items-center gap-3"
+                  className="flex flex-col gap-2 items-start"
                 >
-                  <input
-                    autoFocus
-                    placeholder="Твоё имя..."
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none w-28 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
-                  />
-                  <span className="micro-label text-[var(--color-text-muted)]">—</span>
-                  <button
-                    onClick={() => handleMoodSelect('tired')}
-                    className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
-                  >
-                    немного устала
-                  </button>
-                  <span className="micro-label text-[var(--color-line)]">/</span>
-                  <button
-                    onClick={() => handleMoodSelect('good')}
-                    className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
-                  >
-                    всё хорошо
-                  </button>
-                  <button
-                    onClick={() => { setShowInput(false); setMood(null); }}
-                    className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity ml-1"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <input
+                      autoFocus
+                      placeholder="Твоё имя..."
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      maxLength={40}
+                      className="bg-transparent border-b border-[var(--color-line)] text-sm outline-none w-36 pb-0.5 placeholder:text-[var(--color-text-muted)] font-sans"
+                    />
+                    <button
+                      onClick={closeOverlay}
+                      className="micro-label text-[var(--color-text-muted)] hover:opacity-70 transition-opacity"
+                      aria-label="Закрыть"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 max-w-xl">
+                    {moodOptions.map((opt, i) => (
+                      <span key={opt.id} className="flex items-center gap-x-3">
+                        <button
+                          onClick={() => handleMoodSelect(opt.id)}
+                          className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors whitespace-nowrap"
+                        >
+                          {opt.label}
+                        </button>
+                        {i < moodOptions.length - 1 && (
+                          <span className="micro-label text-[var(--color-line)]">/</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div key="icons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
                   <AnimatePresence>
-                    {aiCompliment && (
+                    {isAi && (
                       <motion.button
+                        key="back-desktop"
+                        initial={{ opacity: 0, x: -5 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -5 }}
+                        onClick={backToDaily}
+                        className="micro-label text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors px-2"
+                        title="К дневному комплименту"
+                      >
+                        ← дневной
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {isAi && (
+                      <motion.button
+                        key="refresh-desktop"
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8 }}

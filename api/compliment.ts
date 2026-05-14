@@ -1,17 +1,32 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+const moodTexts: Record<string, string> = {
+  tired: 'испытывает усталость и нуждается в мягкой поддержке',
+  calm: 'находится в спокойном, хорошем состоянии',
+  anxious: 'испытывает тревогу и нуждается в опоре',
+  seeking: 'ищет ясности и понимания себя',
+  love: 'переживает открытость к любви',
+  flow: 'находится в состоянии потока и собранности',
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { name, mood } = req.body ?? {};
+  const moodText = moodTexts[mood as string] ?? 'находится в моменте поиска';
+  const safeName = typeof name === 'string' ? name.trim().slice(0, 40) : '';
 
-  const moodText = mood === 'tired' ? 'немного устала и нуждается в поддержке' : 'в хорошем настроении';
+  const prompt = `Напиши один красивый, тёплый комплимент на русском языке${safeName ? ` для человека по имени ${safeName}` : ''}.
 
-  const prompt = `Напиши один красивый, тёплый комплимент на русском языке${name ? ` для человека по имени ${name}` : ''}, которая сейчас ${moodText}.
+Состояние адресата сейчас: ${moodText}.
 
-Стиль: поэтичный, минималистичный, как внутренний голос. Без восклицательных знаков. Без эмодзи. Одно предложение. Только сам текст комплимента.`;
+Стиль: поэтичный, минималистичный, как внутренний голос. Без восклицательных знаков. Без эмодзи. Одно предложение.
+
+ВАЖНО — гендерная нейтральность: избегай прилагательных и причастий с явной женской или мужской формой. Используй конструкции «в тебе есть...», «ты несёшь...», «твоё...», «ты умеешь...», глаголы в настоящем времени. Не пиши «ты красивая/красивый», «ты сделала/сделал». Обращайся на «ты».
+
+Верни только сам текст комплимента, без кавычек и пояснений.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -28,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   const data = await response.json();
-  const compliment = data.content?.[0]?.text?.trim() ?? 'Ты несёшь в себе тихую красоту осознанности.';
+  const compliment = data.content?.[0]?.text?.trim() ?? 'В тебе есть тихая красота осознанности.';
 
   return res.status(200).json({ compliment });
 }
