@@ -55,20 +55,9 @@ export function MACCard({
       </div>
 
       {showCaption && (
-        <figcaption
-          className="text-center mt-3 px-1"
-          style={{ fontFamily: 'var(--font-sans)' }}
-        >
-          <div
-            className="italic leading-snug text-[var(--color-text-primary)]"
-            style={{ fontFamily: 'var(--font-serif)', fontSize: 13 }}
-          >
-            «{card.title}»
-          </div>
-          <div
-            className="text-[var(--color-text-muted)] mt-0.5"
-            style={{ fontSize: 10.5, letterSpacing: '0.04em' }}
-          >
+        <figcaption className="text-center mt-3 px-1">
+          <div className="t-caption">«{card.title}»</div>
+          <div className="t-hint mt-0.5" style={{ fontSize: 10.5, letterSpacing: '0.04em' }}>
             {card.artist} · {card.year}
           </div>
         </figcaption>

@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { OnboardingFlow } from './screens/OnboardingFlow';
 import { MetacardSession } from './screens/MetacardSession';
+import PetalsBackground from './components/PetalsBackground';
 import { todayInfo } from './lib/date';
 import { moodById, type Mood, type MoodId } from './lib/moods';
+import { readLS, writeLS } from './lib/storage';
+import { fadeScreen } from './lib/motionPresets';
 
 type Screen = 'onboarding' | 'metacard';
 
@@ -11,22 +14,6 @@ const KEY_NAME = 'compliment:name';
 const KEY_DAY = 'compliment:onboardedDay';
 const KEY_COMPL = 'compliment:todayCompliment';
 const KEY_MOOD = 'compliment:todayMoodId';
-
-function readLS(key: string): string | null {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-function writeLS(key: string, val: string | null) {
-  try {
-    if (val === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, val);
-  } catch {
-    /* ignore */
-  }
-}
 
 export default function App() {
   const today = todayInfo();
@@ -54,30 +41,22 @@ export default function App() {
     writeLS(KEY_MOOD, m.id);
   };
 
-  const clearRitual = () => {
+  const startNewSession = () => {
     writeLS(KEY_DAY, null);
     writeLS(KEY_COMPL, null);
     writeLS(KEY_MOOD, null);
     setAiCompliment(null);
     setMood(null);
-  };
-
-  const startNewSession = () => {
-    clearRitual();
     setSessionKey(k => k + 1);
     setScreen('onboarding');
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <>
+      <PetalsBackground />
+      <AnimatePresence mode="wait">
         {screen === 'onboarding' && (
-          <motion.div
-            key={`onboarding-${sessionKey}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-          >
+          <motion.div key={`onboarding-${sessionKey}`} {...fadeScreen}>
             <OnboardingFlow
               initialName={name}
               initialMood={mood}
@@ -101,13 +80,7 @@ export default function App() {
         )}
 
         {screen === 'metacard' && (
-          <motion.div
-            key="metacard"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-          >
+          <motion.div key="metacard" {...fadeScreen}>
             <MetacardSession
               name={name}
               onBack={() => setScreen('onboarding')}
@@ -115,6 +88,7 @@ export default function App() {
             />
           </motion.div>
         )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }

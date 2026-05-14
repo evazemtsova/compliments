@@ -5,6 +5,8 @@ import { Stage, MicroLabel, LoadingDots } from '../components/ui';
 import { MACCard } from '../components/MACCard';
 import { cardForDay, type Card } from '../lib/deck';
 import { todayInfo } from '../lib/date';
+import { fadeStep } from '../lib/motionPresets';
+
 type Step = 'fields' | 'done';
 
 type Props = {
@@ -56,34 +58,24 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
 
   return (
     <Stage>
-      {/* Header */}
       <header className="flex items-center justify-between pb-5">
         <button onClick={onBack} className="btn-ghost">
           <ChevronLeft className="w-4 h-4" strokeWidth={1.6} />
           Назад
         </button>
-        <MicroLabel className="text-[var(--color-text-primary)]">проекция</MicroLabel>
+        <MicroLabel>проекция</MicroLabel>
         <span className="w-16" />
       </header>
 
-      {/* Card stage */}
       <div className="flex justify-center py-4 transition-all duration-500">
         <MACCard card={card} size={cardSize} showCaption />
       </div>
 
-      {/* Steps */}
       <AnimatePresence mode="wait">
         {step === 'fields' && (
-          <motion.div
-            key="fields"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1 flex flex-col"
-          >
+          <motion.div key="fields" {...fadeStep} className="flex-1 flex flex-col">
             <div className="mt-4">
-              <MicroLabel className="text-[var(--color-text-muted)] mb-2">
+              <MicroLabel className="text-muted mb-2">
                 Что на карте?
               </MicroLabel>
               <textarea
@@ -96,7 +88,7 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
             </div>
 
             <div className="mt-5">
-              <MicroLabel className="text-[var(--color-text-muted)] mb-2">
+              <MicroLabel className="text-muted mb-2">
                 Что ты чувствуешь, глядя на неё?
               </MicroLabel>
               <textarea
@@ -130,7 +122,7 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
             transition={{ duration: 0.5 }}
             className="flex-1 flex flex-col"
           >
-            <MicroLabel className="text-[var(--color-accent)] text-center">
+            <MicroLabel className="text-accent text-center">
               сессия завершена
             </MicroLabel>
 
@@ -138,23 +130,12 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
               {loading ? (
                 <div className="flex flex-col items-center gap-3">
                   <LoadingDots />
-                  <MicroLabel className="text-[var(--color-text-muted)]">
-                    собираем отражение…
-                  </MicroLabel>
+                  <MicroLabel className="text-muted">собираем отражение…</MicroLabel>
                 </div>
               ) : error ? (
-                <p className="text-[var(--color-text-muted)]">{error}</p>
+                <p className="t-body">{error}</p>
               ) : (
-                <p
-                  className="editorial max-w-md mx-auto"
-                  style={{
-                    fontSize: 'clamp(22px, 3.4vw, 28px)',
-                    lineHeight: 1.28,
-                    textWrap: 'balance',
-                  }}
-                >
-                  {reflection}
-                </p>
+                <p className="t-quote-sm max-w-md mx-auto">{reflection}</p>
               )}
             </div>
 
