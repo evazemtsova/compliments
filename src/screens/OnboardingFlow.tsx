@@ -10,6 +10,7 @@ import {
 } from '../components/ui';
 import { MOODS, type Mood } from '../lib/moods';
 import { fadeStep } from '../lib/motionPresets';
+import PhyllotaxisOrb from '../components/PhyllotaxisOrb';
 
 type Props = {
   initialName: string;
@@ -109,17 +110,12 @@ export function OnboardingFlow({
               </div>
 
               <div className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
-                <div
-                  className="rounded-full"
-                  style={{
-                    width: 'clamp(160px, 32vw, 380px)',
-                    height: 'clamp(160px, 32vw, 380px)',
-                    background:
-                      'radial-gradient(circle at 35% 30%, oklch(0.94 0.06 60), oklch(0.55 0.13 50))',
-                    animation: 'breathe 4.5s ease-in-out infinite',
-                    boxShadow: '0 50px 100px -50px rgba(163, 138, 88, 0.45)',
-                  }}
-                />
+                <div className="lg:hidden">
+                  <PhyllotaxisOrb size={240} />
+                </div>
+                <div className="hidden lg:block">
+                  <PhyllotaxisOrb size={380} />
+                </div>
               </div>
             </div>
           </motion.section>
