@@ -2,11 +2,13 @@ import type { Card } from '../lib/deck';
 
 type Size = 'sm' | 'md' | 'lg';
 
-const dims: Record<Size, { w: number; h: number }> = {
-  sm: { w: 180, h: 248 },
-  md: { w: 240, h: 332 },
-  lg: { w: 300, h: 414 },
+const widths: Record<Size, string> = {
+  sm: '180px',
+  md: '240px',
+  lg: 'clamp(260px, 36vw, 420px)',
 };
+
+const ASPECT = 180 / 248;
 
 export function MACCard({
   card,
@@ -17,7 +19,7 @@ export function MACCard({
   size?: Size;
   showCaption?: boolean;
 }) {
-  const { w, h } = dims[size];
+  const w = widths[size];
 
   return (
     <figure
@@ -27,13 +29,13 @@ export function MACCard({
       <div
         className="relative overflow-hidden"
         style={{
-          width: w,
-          height: h,
+          width: '100%',
+          aspectRatio: `${ASPECT}`,
           borderRadius: 10,
           background: 'var(--color-card)',
           border: '1px solid var(--color-line)',
           boxShadow:
-            '0 24px 48px -20px rgba(20,15,8,0.3), 0 8px 18px -8px rgba(20,15,8,0.2)',
+            '0 28px 56px -22px rgba(20,15,8,0.32), 0 10px 20px -10px rgba(20,15,8,0.22)',
         }}
       >
         <img

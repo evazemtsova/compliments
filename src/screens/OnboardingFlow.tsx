@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Stage, MicroLabel, ProgressDots, LoadingDots, MoodOrb } from '../components/ui';
+import { Check } from 'lucide-react';
+import {
+  Stage,
+  MicroLabel,
+  StepIndicator,
+  LoadingDots,
+  MoodOrb,
+} from '../components/ui';
 import { MOODS, type Mood } from '../lib/moods';
 import { fadeStep } from '../lib/motionPresets';
 
@@ -28,9 +35,7 @@ export function OnboardingFlow({
   const [loading, setLoading] = useState(false);
   const [compliment, setCompliment] = useState<string | null>(initialCompliment);
   const [error, setError] = useState<string | null>(null);
-
-  const totalSteps = 3;
-  const dotsIndex = step === 0 ? -1 : step - 1;
+  const [shareLabel, setShareLabel] = useState('Поделиться');
 
   const generate = async () => {
     if (!mood) return;
@@ -55,133 +60,207 @@ export function OnboardingFlow({
     }
   };
 
+  const share = async () => {
+    if (!compliment) return;
+    const text = `«${compliment}»\n\n— Ежедневный комплимент`;
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as Navigator).share) {
+        await (navigator as Navigator).share!({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+      setShareLabel('Скопировано');
+      setTimeout(() => setShareLabel('Поделиться'), 1800);
+    } catch {
+      /* ignore */
+    }
+  };
+
   return (
     <Stage>
-      <div className="flex items-center justify-center pt-2 pb-6 min-h-[24px]">
-        {step > 0 && <ProgressDots total={totalSteps} current={dotsIndex} />}
-      </div>
-
       <AnimatePresence mode="wait">
         {step === 0 && (
-          <motion.div key="s0" {...fadeStep} className="flex-1 flex flex-col">
-            <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <div
-                className="rounded-full mb-7"
-                style={{
-                  width: 130,
-                  height: 130,
-                  background:
-                    'radial-gradient(circle at 35% 30%, oklch(0.92 0.07 60), oklch(0.55 0.12 50))',
-                  animation: 'breathe 4.5s ease-in-out infinite',
-                }}
-              />
-              <MicroLabel className="text-accent">ежедневный ритуал</MicroLabel>
-              <h1 className="t-display mt-3 mb-3">
-                Один <em>комплимент</em><br />в день.
-              </h1>
-              <p className="t-lead max-w-sm">
-                Маленький жест самоподдержки. Тёплое слово, написанное именно для тебя — после короткого ритуала.
-              </p>
+          <motion.section
+            key="s0"
+            {...fadeStep}
+            className="flex-1 flex items-center justify-center py-8 lg:py-0"
+          >
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              <div className="lg:col-span-7 max-w-[560px] mx-auto lg:mx-0 text-center lg:text-left order-2 lg:order-1">
+                <MicroLabel className="text-accent mb-5 lg:mb-7">
+                  ежедневный ритуал
+                </MicroLabel>
+                <h1 className="t-display mb-6">
+                  Один <em>комплимент</em>
+                  <br />в день.
+                </h1>
+                <p className="t-lead max-w-md mx-auto lg:mx-0">
+                  Маленький жест самоподдержки. Тёплое слово, написанное именно для тебя — после короткого ритуала.
+                </p>
+                <div className="mt-9 lg:mt-11">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="btn-primary w-full sm:w-auto sm:px-12"
+                  >
+                    Начать ритуал
+                  </button>
+                  <div className="t-hint mt-4 sm:mt-3 hidden sm:block">займёт около двух минут</div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
+                <div
+                  className="rounded-full"
+                  style={{
+                    width: 'clamp(160px, 32vw, 380px)',
+                    height: 'clamp(160px, 32vw, 380px)',
+                    background:
+                      'radial-gradient(circle at 35% 30%, oklch(0.94 0.06 60), oklch(0.55 0.13 50))',
+                    animation: 'breathe 4.5s ease-in-out infinite',
+                    boxShadow: '0 50px 100px -50px rgba(163, 138, 88, 0.45)',
+                  }}
+                />
+              </div>
             </div>
-            <div className="mt-6">
-              <button onClick={() => setStep(1)} className="btn-primary w-full">
-                Начать ритуал
-              </button>
-            </div>
-          </motion.div>
+          </motion.section>
         )}
 
         {step === 1 && (
-          <motion.div key="s1" {...fadeStep} className="flex-1 flex flex-col">
-            <MicroLabel className="text-accent">шаг 1 из 3</MicroLabel>
-            <h2 className="t-heading mt-4 mb-2">
-              Как тебя <em>зовут?</em>
-            </h2>
-            <p className="t-body">
-              Имя нужно, чтобы комплимент звучал лично. Можно пропустить.
-            </p>
+          <motion.section
+            key="s1"
+            {...fadeStep}
+            className="flex-1 flex items-center justify-center py-8 lg:py-0"
+          >
+            <div className="w-full max-w-[680px] mx-auto">
+              <StepIndicator current={1} total={3} />
+              <h2 className="t-heading mb-3">
+                Как тебя <em>зовут?</em>
+              </h2>
+              <p className="t-body mb-7 max-w-md">
+                Имя нужно, чтобы комплимент звучал лично. Можно пропустить.
+              </p>
 
-            <input
-              autoFocus
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && setStep(2)}
-              placeholder="например, Ева"
-              maxLength={40}
-              className="field-input t-name-input mt-7"
-            />
+              <input
+                autoFocus
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && setStep(2)}
+                placeholder="например, Ева"
+                maxLength={40}
+                className="field-input t-name-input max-w-md"
+              />
 
-            <div className="flex-1" />
-            <div className="flex gap-3 mt-8">
-              <button onClick={() => { setName(''); setStep(2); }} className="btn-secondary flex-1">
-                Пропустить
-              </button>
-              <button onClick={() => setStep(2)} className="btn-primary flex-1">
-                Дальше →
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 mt-12 sm:justify-end">
+                <button
+                  onClick={() => {
+                    setName('');
+                    setStep(2);
+                  }}
+                  className="btn-secondary w-full sm:w-auto sm:min-w-[160px]"
+                >
+                  Пропустить
+                </button>
+                <button
+                  onClick={() => setStep(2)}
+                  className="btn-primary w-full sm:w-auto sm:min-w-[180px]"
+                >
+                  Дальше →
+                </button>
+              </div>
             </div>
-          </motion.div>
+          </motion.section>
         )}
 
         {step === 2 && (
-          <motion.div key="s2" {...fadeStep} className="flex-1 flex flex-col">
-            <MicroLabel className="text-accent">шаг 2 из 3</MicroLabel>
-            <h2 className="t-heading mt-4 mb-2">
-              Как ты <em>сейчас?</em>
-            </h2>
-            <p className="t-body">
-              {name ? `${name}, выбери, что ближе всего к твоему состоянию.` : 'Выбери, что ближе всего к твоему состоянию.'}
-            </p>
+          <motion.section
+            key="s2"
+            {...fadeStep}
+            className="flex-1 flex items-center justify-center py-8 lg:py-0"
+          >
+            <div className="w-full max-w-[920px] mx-auto">
+              <StepIndicator current={2} total={3} />
+              <h2 className="t-heading mb-3">
+                Как ты <em>сейчас?</em>
+              </h2>
+              <p className="t-body mb-8 max-w-md">
+                {name
+                  ? `${name}, выбери, что ближе всего к твоему состоянию.`
+                  : 'Выбери, что ближе всего к твоему состоянию.'}
+              </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-6">
-              {MOODS.map(m => {
-                const active = mood?.id === m.id;
-                return (
-                  <button
-                    key={m.id}
-                    onClick={() => setMood(m)}
-                    className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all"
-                    style={{
-                      background: active ? 'var(--color-card)' : 'transparent',
-                      border: `1px solid ${active ? 'var(--color-accent)' : 'var(--color-line)'}`,
-                    }}
-                  >
-                    <MoodOrb hue={m.hue} size={30} />
-                    <div className="flex flex-col">
-                      <span className="t-body" style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
-                        {m.label}
-                      </span>
-                      <span className="t-hint">{m.desc}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {MOODS.map(m => {
+                  const active = mood?.id === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => setMood(m)}
+                      className="group flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 hover:-translate-y-0.5"
+                      style={{
+                        background: active
+                          ? 'var(--color-card)'
+                          : 'rgba(255,255,255,0.32)',
+                        border: `1.5px solid ${active ? 'var(--color-accent)' : 'rgba(26,22,18,0.08)'}`,
+                        boxShadow: active
+                          ? '0 14px 36px -18px rgba(163,138,88,0.45)'
+                          : 'none',
+                      }}
+                    >
+                      <MoodOrb hue={m.hue} size={30} />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span
+                          className="t-body"
+                          style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}
+                        >
+                          {m.label}
+                        </span>
+                        <span className="t-hint truncate">{m.desc}</span>
+                      </div>
+                      {active && (
+                        <Check
+                          className="w-4 h-4 shrink-0"
+                          strokeWidth={2.2}
+                          style={{ color: 'var(--color-accent)' }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
 
-            <div className="flex-1" />
-            <div className="flex gap-3 mt-8">
-              <button onClick={() => setStep(1)} className="btn-secondary flex-1">
-                ← Назад
-              </button>
-              <button onClick={generate} disabled={!mood} className="btn-primary flex-1">
-                Получить
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 mt-10 sm:justify-end">
+                <button
+                  onClick={() => setStep(1)}
+                  className="btn-secondary w-full sm:w-auto sm:min-w-[160px]"
+                >
+                  ← Назад
+                </button>
+                <button
+                  onClick={generate}
+                  disabled={!mood}
+                  className="btn-primary w-full sm:w-auto sm:min-w-[180px]"
+                >
+                  Получить
+                </button>
+              </div>
             </div>
-          </motion.div>
+          </motion.section>
         )}
 
         {step === 3 && (
-          <motion.div key="s3" {...fadeStep} className="flex-1 flex flex-col">
-            <MicroLabel className="text-accent">твой комплимент</MicroLabel>
-
-            <div className="flex-1 flex items-center py-6">
+          <motion.section
+            key="s3"
+            {...fadeStep}
+            className="flex-1 flex items-center justify-center py-10 lg:py-16"
+          >
+            <div className="w-full max-w-[820px] mx-auto text-center">
               {loading ? (
-                <div className="flex flex-col items-center gap-4 w-full">
+                <div className="flex flex-col items-center gap-5">
                   <div
                     className="rounded-full"
                     style={{
-                      width: 110,
-                      height: 110,
+                      width: 140,
+                      height: 140,
                       background: `radial-gradient(circle at 35% 30%, oklch(0.88 0.08 ${mood?.hue ?? 60}), oklch(0.55 0.12 ${((mood?.hue ?? 60) + 30) % 360}))`,
                       animation: 'breathe 2.4s ease-in-out infinite',
                     }}
@@ -190,40 +269,53 @@ export function OnboardingFlow({
                   <MicroLabel className="text-muted">собираем слова…</MicroLabel>
                 </div>
               ) : error ? (
-                <div className="w-full text-center">
-                  <p className="t-body mb-4">{error}</p>
-                  <button onClick={generate} className="btn-secondary">Попробовать снова</button>
+                <div className="w-full">
+                  <p className="t-body mb-5">{error}</p>
+                  <button onClick={generate} className="btn-secondary">
+                    Попробовать снова
+                  </button>
                 </div>
               ) : (
-                <div className="w-full fade-up">
-                  <p className="t-quote">
+                <div className="fade-up">
+                  {mood && (
+                    <div className="flex items-center justify-center gap-3 mb-8 lg:mb-10">
+                      <MoodOrb hue={mood.hue} size={26} />
+                      <MicroLabel className="text-muted">{mood.label}</MicroLabel>
+                    </div>
+                  )}
+
+                  <p className="t-hero-quote">
                     <span className="text-accent italic">«</span>
                     {compliment}
                     <span className="text-accent italic">»</span>
                   </p>
-                  <div className="t-meta mt-7 pt-4 border-t flex justify-between text-muted"
-                       style={{ borderColor: 'var(--color-line)' }}>
-                    <span>{name || 'для тебя'}</span>
-                    <span>{mood?.label}</span>
+
+                  <div className="micro text-muted mt-8 lg:mt-10">
+                    — {name || 'для тебя'}
+                  </div>
+
+                  <div className="mt-12 lg:mt-16 flex flex-col items-center gap-6">
+                    <button
+                      onClick={() =>
+                        compliment && mood && onMetacard({ name: name.trim(), mood, compliment })
+                      }
+                      className="btn-primary w-full sm:w-auto sm:min-w-[260px]"
+                    >
+                      Метакарта дня →
+                    </button>
+                    <div className="flex items-center gap-7">
+                      <button onClick={share} className="action-link">
+                        {shareLabel}
+                      </button>
+                      <button onClick={onNewSession} className="action-link">
+                        Заново
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
-
-            {!loading && !error && compliment && mood && (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button onClick={onNewSession} className="btn-secondary sm:flex-1">
-                  Заново
-                </button>
-                <button
-                  onClick={() => onMetacard({ name: name.trim(), mood, compliment })}
-                  className="btn-primary sm:flex-1"
-                >
-                  Метакарта дня
-                </button>
-              </div>
-            )}
-          </motion.div>
+          </motion.section>
         )}
       </AnimatePresence>
     </Stage>

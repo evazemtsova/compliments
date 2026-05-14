@@ -12,9 +12,22 @@ type Petal = {
   color: [number, number, number];
 };
 
-const PETAL_COUNT = 18;
 const PINK: [number, number, number] = [244, 212, 216];
 const BEIGE: [number, number, number] = [232, 213, 196];
+
+// Bias x toward edges: maps a uniform [0,1) sample to a U-curve favoring the
+// outer thirds of the screen. Keeps the center clear so type stays unburdened.
+function edgeBiasedX(width: number) {
+  const r = Math.random();
+  const sign = r < 0.5 ? -1 : 1;
+  // raise to a power < 1 to push the value away from 0.5 toward the edges
+  const dist = Math.pow(Math.abs(r - 0.5) * 2, 0.55);
+  return width * 0.5 + sign * dist * width * 0.5;
+}
+
+function petalCount() {
+  return window.innerWidth >= 1024 ? 10 : 14;
+}
 
 export default function PetalsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -44,15 +57,15 @@ export default function PetalsBackground() {
     const initPetals = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      petals = Array.from({ length: PETAL_COUNT }, () => ({
-        x: Math.random() * w,
+      petals = Array.from({ length: petalCount() }, () => ({
+        x: edgeBiasedX(w),
         y: Math.random() * h,
         size: 8 + Math.random() * 10,
         vx: (Math.random() - 0.5) * 0.15,
         vy: 0.15 + Math.random() * 0.25,
         angle: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.008,
-        opacity: 0.15 + Math.random() * 0.25,
+        opacity: 0.12 + Math.random() * 0.22,
         color: Math.random() > 0.5 ? PINK : BEIGE,
       }));
     };

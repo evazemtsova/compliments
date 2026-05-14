@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { OnboardingFlow } from './screens/OnboardingFlow';
 import { MetacardSession } from './screens/MetacardSession';
 import PetalsBackground from './components/PetalsBackground';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { todayInfo } from './lib/date';
 import { moodById, type Mood, type MoodId } from './lib/moods';
 import { readLS, writeLS } from './lib/storage';
@@ -54,41 +56,52 @@ export default function App() {
   return (
     <>
       <PetalsBackground />
-      <AnimatePresence mode="wait">
-        {screen === 'onboarding' && (
-          <motion.div key={`onboarding-${sessionKey}`} {...fadeScreen}>
-            <OnboardingFlow
-              initialName={name}
-              initialMood={mood}
-              initialCompliment={aiCompliment}
-              onComplimentReady={({ name: n, mood: m, compliment }) => {
-                setName(n);
-                setMood(m);
-                setAiCompliment(compliment);
-                persistRitual(n, m, compliment);
-              }}
-              onMetacard={({ name: n, mood: m, compliment }) => {
-                setName(n);
-                setMood(m);
-                setAiCompliment(compliment);
-                persistRitual(n, m, compliment);
-                setScreen('metacard');
-              }}
-              onNewSession={startNewSession}
-            />
-          </motion.div>
-        )}
+      <div className="min-h-[100dvh] flex flex-col relative">
+        <div className="grain-overlay" />
+        <Header />
+        <main className="flex-1 flex flex-col relative z-10">
+          <AnimatePresence mode="wait">
+            {screen === 'onboarding' && (
+              <motion.div
+                key={`onboarding-${sessionKey}`}
+                {...fadeScreen}
+                className="flex-1 flex flex-col"
+              >
+                <OnboardingFlow
+                  initialName={name}
+                  initialMood={mood}
+                  initialCompliment={aiCompliment}
+                  onComplimentReady={({ name: n, mood: m, compliment }) => {
+                    setName(n);
+                    setMood(m);
+                    setAiCompliment(compliment);
+                    persistRitual(n, m, compliment);
+                  }}
+                  onMetacard={({ name: n, mood: m, compliment }) => {
+                    setName(n);
+                    setMood(m);
+                    setAiCompliment(compliment);
+                    persistRitual(n, m, compliment);
+                    setScreen('metacard');
+                  }}
+                  onNewSession={startNewSession}
+                />
+              </motion.div>
+            )}
 
-        {screen === 'metacard' && (
-          <motion.div key="metacard" {...fadeScreen}>
-            <MetacardSession
-              name={name}
-              onBack={() => setScreen('onboarding')}
-              onNewSession={startNewSession}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {screen === 'metacard' && (
+              <motion.div key="metacard" {...fadeScreen} className="flex-1 flex flex-col">
+                <MetacardSession
+                  name={name}
+                  onBack={() => setScreen('onboarding')}
+                  onNewSession={startNewSession}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }

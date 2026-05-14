@@ -54,97 +54,117 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
     }
   };
 
-  const cardSize = step === 'fields' ? 'md' : 'sm';
-
   return (
     <Stage>
-      <header className="flex items-center justify-between pb-5">
+      <div className="flex items-center justify-between mb-2 lg:mb-4">
         <button onClick={onBack} className="btn-ghost">
           <ChevronLeft className="w-4 h-4" strokeWidth={1.6} />
           Назад
         </button>
-        <MicroLabel>проекция</MicroLabel>
-        <span className="w-16" />
-      </header>
-
-      <div className="flex justify-center py-4 transition-all duration-500">
-        <MACCard card={card} size={cardSize} showCaption />
+        <MicroLabel className="text-muted">проекция</MicroLabel>
+        <span className="w-16" aria-hidden />
       </div>
 
       <AnimatePresence mode="wait">
         {step === 'fields' && (
-          <motion.div key="fields" {...fadeStep} className="flex-1 flex flex-col">
-            <div className="mt-4">
-              <MicroLabel className="text-muted mb-2">
-                Что на карте?
-              </MicroLabel>
-              <textarea
-                value={seeText}
-                onChange={e => setSeeText(e.target.value)}
-                placeholder="опиши, что видишь"
-                rows={2}
-                className="field-textarea"
-              />
-            </div>
+          <motion.section
+            key="fields"
+            {...fadeStep}
+            className="flex-1 flex items-center py-6 lg:py-10"
+          >
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+              <div className="lg:col-span-7 flex justify-center lg:justify-end">
+                <div className="gallery-wall p-4 sm:p-7 lg:p-10">
+                  <div className="hidden sm:block">
+                    <MACCard card={card} size="lg" showCaption />
+                  </div>
+                  <div className="sm:hidden">
+                    <MACCard card={card} size="md" showCaption />
+                  </div>
+                </div>
+              </div>
 
-            <div className="mt-5">
-              <MicroLabel className="text-muted mb-2">
-                Что ты чувствуешь, глядя на неё?
-              </MicroLabel>
-              <textarea
-                value={feelText}
-                onChange={e => setFeelText(e.target.value)}
-                placeholder="без оценок, просто отклик"
-                rows={2}
-                className="field-textarea"
-              />
-            </div>
+              <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:mx-0 flex flex-col gap-7">
+                <div>
+                  <MicroLabel className="text-muted mb-3">Что на карте?</MicroLabel>
+                  <textarea
+                    value={seeText}
+                    onChange={e => setSeeText(e.target.value)}
+                    placeholder="опиши, что видишь"
+                    rows={3}
+                    className="field-textarea"
+                  />
+                </div>
 
-            <div className="flex-1" />
-            <div className="mt-8">
-              <button
-                onClick={finishSession}
-                disabled={!fieldsValid || loading}
-                className="btn-primary w-full"
-              >
-                {loading ? 'Слушаем…' : 'Готово'}
-              </button>
+                <div>
+                  <MicroLabel className="text-muted mb-3">
+                    Что ты чувствуешь, глядя на неё?
+                  </MicroLabel>
+                  <textarea
+                    value={feelText}
+                    onChange={e => setFeelText(e.target.value)}
+                    placeholder="без оценок, просто отклик"
+                    rows={3}
+                    className="field-textarea"
+                  />
+                </div>
+
+                <div className="mt-2">
+                  <button
+                    onClick={finishSession}
+                    disabled={!fieldsValid || loading}
+                    className="btn-primary w-full sm:w-auto sm:min-w-[200px]"
+                  >
+                    {loading ? 'Слушаем…' : 'Готово'}
+                  </button>
+                </div>
+              </div>
             </div>
-          </motion.div>
+          </motion.section>
         )}
 
         {step === 'done' && (
-          <motion.div
+          <motion.section
             key="done"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex-1 flex flex-col"
+            className="flex-1 flex flex-col items-center justify-center py-10 lg:py-16 relative"
           >
-            <MicroLabel className="text-accent text-center">
-              сессия завершена
-            </MicroLabel>
+            <div className="hidden lg:block absolute top-2 right-2 opacity-90">
+              <MACCard card={card} size="sm" showCaption={false} />
+            </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+            <div className="w-full max-w-[760px] mx-auto text-center">
+              <div className="lg:hidden flex justify-center mb-8">
+                <MACCard card={card} size="sm" showCaption={false} />
+              </div>
+
+              <MicroLabel className="text-accent mb-8 lg:mb-10">
+                сессия завершена
+              </MicroLabel>
+
               {loading ? (
-                <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-col items-center gap-3 py-10">
                   <LoadingDots />
                   <MicroLabel className="text-muted">собираем отражение…</MicroLabel>
                 </div>
               ) : error ? (
                 <p className="t-body">{error}</p>
               ) : (
-                <p className="t-quote-sm max-w-md mx-auto">{reflection}</p>
+                <p className="t-hero-quote">{reflection}</p>
+              )}
+
+              {!loading && (
+                <div className="mt-14 lg:mt-20">
+                  <button onClick={onNewSession} className="action-link">
+                    Завершить ритуал
+                  </button>
+                </div>
               )}
             </div>
-
-            {!loading && (
-              <button onClick={onNewSession} className="btn-primary w-full">
-                Новая сессия
-              </button>
-            )}
-          </motion.div>
+          </motion.section>
         )}
       </AnimatePresence>
     </Stage>

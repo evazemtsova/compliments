@@ -2,9 +2,8 @@ import type { ReactNode } from 'react';
 
 export function Stage({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-[100dvh] w-full flex flex-col items-center px-5 sm:px-8 py-6 sm:py-10 relative">
-      <div className="grain-overlay" />
-      <div className="w-full max-w-[680px] flex-1 flex flex-col relative z-10">
+    <div className="flex-1 flex flex-col w-full px-5 sm:px-8 lg:px-12 py-4 sm:py-8 relative">
+      <div className="w-full max-w-[1200px] mx-auto flex-1 flex flex-col relative z-10">
         {children}
       </div>
     </div>
@@ -21,19 +20,39 @@ export function MicroLabel({
   return <div className={`micro ${className}`}>{children}</div>;
 }
 
-export function ProgressDots({ total, current }: { total: number; current: number }) {
+export function StepIndicator({
+  current,
+  total,
+}: {
+  current: number;
+  total: number;
+}) {
+  const pct = (current / total) * 100;
+  const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <div className="flex gap-2 justify-center">
-      {Array.from({ length: total }, (_, i) => (
-        <span
-          key={i}
-          className="h-[5px] rounded-full transition-all duration-300"
-          style={{
-            width: i === current ? 18 : 5,
-            background: i <= current ? 'var(--color-accent)' : 'var(--color-line)',
-          }}
+    <div className="flex items-center gap-4 mb-10 lg:mb-14">
+      <span
+        className="micro text-accent"
+        style={{ fontVariantNumeric: 'tabular-nums' }}
+      >
+        {pad(current)}
+      </span>
+      <div className="relative h-px flex-1 max-w-[200px]">
+        <div
+          className="absolute inset-0"
+          style={{ background: 'var(--color-line)' }}
         />
-      ))}
+        <div
+          className="absolute inset-y-0 left-0 transition-all duration-500 ease-out"
+          style={{ width: `${pct}%`, background: 'var(--color-accent)' }}
+        />
+      </div>
+      <span
+        className="micro text-muted"
+        style={{ fontVariantNumeric: 'tabular-nums' }}
+      >
+        {pad(total)}
+      </span>
     </div>
   );
 }
@@ -64,32 +83,5 @@ export function MoodOrb({ hue, size = 28 }: { hue: number; size?: number }) {
         background: `radial-gradient(circle at 35% 30%, oklch(0.88 0.08 ${hue}), oklch(0.55 0.10 ${(hue + 30) % 360}))`,
       }}
     />
-  );
-}
-
-export function ProgressThread({ progress }: { progress: number }) {
-  const pct = Math.max(0, Math.min(1, progress)) * 100;
-  return (
-    <div className="relative h-[18px] w-full">
-      <div
-        className="absolute top-[9px] left-0 right-0 h-px"
-        style={{ background: 'var(--color-line)' }}
-      />
-      <div
-        className="absolute top-[9px] left-0 h-px transition-all duration-500"
-        style={{ width: `${pct}%`, background: 'var(--color-accent)' }}
-      />
-      <div
-        className="absolute top-[4px] rounded-full"
-        style={{
-          left: `calc(${pct}% - 5px)`,
-          width: 11,
-          height: 11,
-          background: 'var(--color-accent)',
-          boxShadow:
-            '0 0 0 4px var(--color-surface), 0 0 0 5px color-mix(in oklch, var(--color-accent) 30%, transparent)',
-        }}
-      />
-    </div>
   );
 }
