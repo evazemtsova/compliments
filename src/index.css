@@ -13,8 +13,11 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-html, body {
+html {
   background-color: var(--color-surface);
+}
+
+html, body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -24,6 +27,12 @@ html, body {
 body {
   min-height: 100dvh;
   margin: 0;
+  background: transparent;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 /* ---------- Decorative overlays ---------- */
