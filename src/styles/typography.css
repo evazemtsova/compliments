@@ -1,0 +1,65 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   TYPOGRAPHY — exactly FIVE roles. Do not add a sixth.
+
+   Every text element in the app composes one of these classes. If a new
+   piece of UI needs sizing that doesn't fit, adjust the existing role here
+   (and accept the ripple) rather than spawning yet another class.
+
+     1. .type-display  — big serif headlines & hero quotes (h1/h2/quote)
+     2. .type-italic   — decorative italic serif (name input, hero italic)
+     3. .type-body     — paragraph copy (sans, muted by default)
+     4. .type-caption  — small italic serif (card titles, soft hints)
+     5. .type-micro    — uppercase tracked labels (chips, meta, dates)
+
+   Buttons / inputs intentionally keep their own typography inside their
+   component CSS — they're widgets, not content roles.
+   ────────────────────────────────────────────────────────────────────── */
+
+.type-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.014em;
+  text-wrap: pretty;
+}
+
+.type-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(24px, 2.8vw, 32px);
+  line-height: 1.25;
+}
+
+.type-body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.type-caption {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.type-micro {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Gold italic accent inside display headlines (e.g. <em>минута</em>). */
+.type-display em {
+  color: var(--color-accent);
+  font-style: italic;
+}

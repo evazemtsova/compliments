@@ -17,7 +17,7 @@ export function MicroLabel({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`micro ${className}`}>{children}</div>;
+  return <div className={`type-micro ${className}`}>{children}</div>;
 }
 
 export function StepIndicator({
@@ -32,7 +32,7 @@ export function StepIndicator({
   return (
     <div className="flex items-center gap-4 mb-10 lg:mb-14">
       <span
-        className="micro text-accent"
+        className="type-micro text-accent"
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {pad(current)}
@@ -48,7 +48,7 @@ export function StepIndicator({
         />
       </div>
       <span
-        className="micro text-muted"
+        className="type-micro text-muted"
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {pad(total)}

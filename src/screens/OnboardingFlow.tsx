@@ -91,10 +91,10 @@ export function OnboardingFlow({
                 <MicroLabel className="text-accent mb-5 lg:mb-7">
                   Тихий ритуал самоподдержки
                 </MicroLabel>
-                <h1 className="t-display mb-6">
+                <h1 className="type-display mb-6">
                   Это только твоя <em>минута</em>…
                 </h1>
-                <p className="t-lead max-w-md mx-auto lg:mx-0">
+                <p className="type-body max-w-md mx-auto lg:mx-0">
                   Маленький жест самоподдержки. Тёплые слова только для тебя.
                 </p>
                 <div className="mt-9 lg:mt-11">
@@ -127,10 +127,10 @@ export function OnboardingFlow({
           >
             <div className="w-full max-w-[680px] mx-auto">
               <StepIndicator current={1} total={3} />
-              <h2 className="t-heading mb-3">
+              <h2 className="type-display mb-3">
                 Как тебя <em>зовут?</em>
               </h2>
-              <p className="t-body mb-7 max-w-md">
+              <p className="type-body mb-7 max-w-md">
                 Имя нужно, чтобы комплимент звучал лично. Можно пропустить.
               </p>
 
@@ -141,7 +141,7 @@ export function OnboardingFlow({
                 onKeyDown={e => e.key === 'Enter' && setStep(2)}
                 placeholder="например, Ева"
                 maxLength={40}
-                className="field-input t-name-input max-w-md"
+                className="field-input type-italic max-w-md"
               />
 
               <div className="flex flex-col sm:flex-row gap-3 mt-12 sm:justify-end">
@@ -173,10 +173,10 @@ export function OnboardingFlow({
           >
             <div className="w-full max-w-[920px] mx-auto">
               <StepIndicator current={2} total={3} />
-              <h2 className="t-heading mb-3">
+              <h2 className="type-display mb-3">
                 Как ты <em>сейчас?</em>
               </h2>
-              <p className="t-body mb-8 max-w-md">
+              <p className="type-body mb-8 max-w-md">
                 {name
                   ? `${name}, выбери, что ближе всего к твоему состоянию.`
                   : 'Выбери, что ближе всего к твоему состоянию.'}
@@ -203,12 +203,12 @@ export function OnboardingFlow({
                       <MoodOrb hue={m.hue} size={30} />
                       <div className="flex flex-col flex-1 min-w-0">
                         <span
-                          className="t-body"
+                          className="type-body"
                           style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}
                         >
                           {m.label}
                         </span>
-                        <span className="t-hint truncate">{m.desc}</span>
+                        <span className="type-caption truncate">{m.desc}</span>
                       </div>
                       {active && (
                         <Check
@@ -264,7 +264,7 @@ export function OnboardingFlow({
                 </div>
               ) : error ? (
                 <div className="w-full">
-                  <p className="t-body mb-5">{error}</p>
+                  <p className="type-body mb-5">{error}</p>
                   <button onClick={generate} className="btn-secondary">
                     Попробовать снова
                   </button>
@@ -278,13 +278,13 @@ export function OnboardingFlow({
                     </div>
                   )}
 
-                  <p className="t-hero-quote">
+                  <p className="type-display">
                     <span className="text-accent italic">«</span>
                     {compliment}
                     <span className="text-accent italic">»</span>
                   </p>
 
-                  <div className="micro text-muted mt-8 lg:mt-10">
+                  <div className="type-micro text-muted mt-8 lg:mt-10">
                     — {name || 'для тебя'}
                   </div>
 

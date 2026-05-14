@@ -58,8 +58,8 @@ export function MACCard({
 
       {showCaption && (
         <figcaption className="text-center mt-3 px-1">
-          <div className="t-caption">«{card.title}»</div>
-          <div className="t-hint mt-0.5" style={{ fontSize: 10.5, letterSpacing: '0.04em' }}>
+          <div className="type-caption">«{card.title}»</div>
+          <div className="type-micro text-muted mt-1">
             {card.artist} · {card.year}
           </div>
         </figcaption>

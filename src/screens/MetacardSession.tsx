@@ -151,9 +151,9 @@ export function MetacardSession({ name, onBack, onNewSession }: Props) {
                   <MicroLabel className="text-muted">собираем отражение…</MicroLabel>
                 </div>
               ) : error ? (
-                <p className="t-body">{error}</p>
+                <p className="type-body">{error}</p>
               ) : (
-                <p className="t-hero-quote">{reflection}</p>
+                <p className="type-display">{reflection}</p>
               )}
 
               {!loading && (
