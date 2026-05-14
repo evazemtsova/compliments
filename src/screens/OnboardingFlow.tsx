@@ -9,6 +9,7 @@ type Props = {
   initialCompliment?: string | null;
   onMetacard: (result: { name: string; mood: Mood; compliment: string }) => void;
   onComplimentReady: (result: { name: string; mood: Mood; compliment: string }) => void;
+  onNewSession: () => void;
 };
 
 export function OnboardingFlow({
@@ -17,6 +18,7 @@ export function OnboardingFlow({
   initialCompliment = null,
   onMetacard,
   onComplimentReady,
+  onNewSession,
 }: Props) {
   const hasSaved = !!(initialCompliment && initialMood);
   const [step, setStep] = useState<0 | 1 | 2 | 3>(hasSaved ? 3 : 0);
@@ -268,7 +270,7 @@ export function OnboardingFlow({
             {!loading && !error && compliment && mood && (
               <>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button onClick={generate} className="btn-secondary sm:flex-1">
+                  <button onClick={onNewSession} className="btn-secondary sm:flex-1">
                     Заново
                   </button>
                   <button

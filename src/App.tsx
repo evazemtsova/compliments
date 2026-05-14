@@ -62,6 +62,12 @@ export default function App() {
     setMood(null);
   };
 
+  const startNewSession = () => {
+    clearRitual();
+    setSessionKey(k => k + 1);
+    setScreen('onboarding');
+  };
+
   return (
     <AnimatePresence mode="wait">
         {screen === 'onboarding' && (
@@ -89,6 +95,7 @@ export default function App() {
                 persistRitual(n, m, compliment);
                 setScreen('metacard');
               }}
+              onNewSession={startNewSession}
             />
           </motion.div>
         )}
@@ -104,11 +111,7 @@ export default function App() {
             <MetacardSession
               name={name}
               onBack={() => setScreen('onboarding')}
-              onNewSession={() => {
-                clearRitual();
-                setSessionKey(k => k + 1);
-                setScreen('onboarding');
-              }}
+              onNewSession={startNewSession}
             />
           </motion.div>
         )}
