@@ -11,49 +11,84 @@ import {
 import { MOODS, type Mood } from '../lib/moods';
 import { fadeStep } from '../lib/motionPresets';
 import PhyllotaxisOrb from '../components/PhyllotaxisOrb';
+import { MACCard } from '../components/MACCard';
+import { cardForDay, type Card } from '../lib/deck';
+import { todayInfo } from '../lib/date';
+
+type Step = 0 | 1 | 2 | 3 | 4;
+
+export type RitualResult = {
+  name: string;
+  mood: Mood;
+  see: string;
+  feel: string;
+  offering: string;
+};
 
 type Props = {
   initialName: string;
   initialMood?: Mood | null;
-  initialCompliment?: string | null;
-  onMetacard: (result: { name: string; mood: Mood; compliment: string }) => void;
-  onComplimentReady: (result: { name: string; mood: Mood; compliment: string }) => void;
+  initialSee?: string;
+  initialFeel?: string;
+  initialOffering?: string | null;
+  onComplete: (result: RitualResult) => void;
   onNewSession: () => void;
 };
 
-export function OnboardingFlow({
+export function RitualFlow({
   initialName,
   initialMood = null,
-  initialCompliment = null,
-  onMetacard,
-  onComplimentReady,
+  initialSee = '',
+  initialFeel = '',
+  initialOffering = null,
+  onComplete,
   onNewSession,
 }: Props) {
-  const hasSaved = !!(initialCompliment && initialMood);
-  const [step, setStep] = useState<0 | 1 | 2 | 3>(hasSaved ? 3 : 0);
+  const today = todayInfo();
+  const [card] = useState<Card>(() => cardForDay(today.day));
+  const hasSaved = !!(initialOffering && initialMood);
+  const [step, setStep] = useState<Step>(hasSaved ? 4 : 0);
   const [name, setName] = useState(initialName);
   const [mood, setMood] = useState<Mood | null>(initialMood);
+  const [seeText, setSeeText] = useState(initialSee);
+  const [feelText, setFeelText] = useState(initialFeel);
+  const [offering, setOffering] = useState<string | null>(initialOffering);
   const [loading, setLoading] = useState(false);
-  const [compliment, setCompliment] = useState<string | null>(initialCompliment);
   const [error, setError] = useState<string | null>(null);
   const [shareLabel, setShareLabel] = useState('Поделиться');
 
-  const generate = async () => {
+  const fieldsValid = seeText.trim().length >= 3 && feelText.trim().length >= 3;
+
+  const generateOffering = async () => {
     if (!mood) return;
     setLoading(true);
     setError(null);
-    setCompliment(null);
-    setStep(3);
+    setOffering(null);
+    setStep(4);
     try {
-      const res = await fetch('/api/compliment', {
+      const res = await fetch('/api/synthesis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), mood: mood.id }),
+        body: JSON.stringify({
+          name: name.trim(),
+          mood: mood.id,
+          card: { title: card.title, artist: card.artist, year: card.year },
+          see: seeText.trim(),
+          feel: feelText.trim(),
+        }),
       });
       const data = await res.json();
-      const text = data.compliment ?? 'В тебе есть тихая красота осознанности.';
-      setCompliment(text);
-      onComplimentReady({ name: name.trim(), mood, compliment: text });
+      const text =
+        (data.offering ?? '').trim() ||
+        'В тебе есть тихое внимание к собственным образам — этого уже достаточно.';
+      setOffering(text);
+      onComplete({
+        name: name.trim(),
+        mood,
+        see: seeText.trim(),
+        feel: feelText.trim(),
+        offering: text,
+      });
     } catch {
       setError('Не получилось дотянуться. Попробуй ещё раз.');
     } finally {
@@ -62,8 +97,8 @@ export function OnboardingFlow({
   };
 
   const share = async () => {
-    if (!compliment) return;
-    const text = `«${compliment}»\n\n— Ежедневный комплимент`;
+    if (!offering) return;
+    const text = `«${offering}»\n\n— Ежедневный комплимент`;
     try {
       if (typeof navigator !== 'undefined' && (navigator as Navigator).share) {
         await (navigator as Navigator).share!({ text });
@@ -95,7 +130,7 @@ export function OnboardingFlow({
                   Это только твоя <em>минута</em>…
                 </h1>
                 <p className="type-body max-w-md mx-auto lg:mx-0">
-                  Маленький жест самоподдержки. Тёплые слова только для тебя.
+                  Четыре тихих шага: настроишься, посмотришь на одну карту, и слова, родившиеся из твоего же взгляда, вернутся к тебе.
                 </p>
                 <div className="mt-9 lg:mt-11">
                   <button
@@ -126,12 +161,12 @@ export function OnboardingFlow({
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
             <div className="w-full max-w-[680px] mx-auto">
-              <StepIndicator current={1} total={3} />
+              <StepIndicator current={1} total={4} />
               <h2 className="type-display mb-3">
                 Как тебя <em>зовут?</em>
               </h2>
               <p className="type-body mb-7 max-w-md">
-                Имя нужно, чтобы комплимент звучал лично. Можно пропустить.
+                Имя нужно, чтобы слова звучали лично. Можно пропустить.
               </p>
 
               <input
@@ -172,14 +207,14 @@ export function OnboardingFlow({
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
             <div className="w-full max-w-[920px] mx-auto">
-              <StepIndicator current={2} total={3} />
+              <StepIndicator current={2} total={4} />
               <h2 className="type-display mb-3">
                 Как ты <em>сейчас?</em>
               </h2>
               <p className="type-body mb-8 max-w-md">
                 {name
-                  ? `${name}, выбери, что ближе всего к твоему состоянию.`
-                  : 'Выбери, что ближе всего к твоему состоянию.'}
+                  ? `${name}, выбери, что ближе к твоему состоянию.`
+                  : 'Выбери, что ближе к твоему состоянию.'}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -230,11 +265,11 @@ export function OnboardingFlow({
                   ← Назад
                 </button>
                 <button
-                  onClick={generate}
+                  onClick={() => mood && setStep(3)}
                   disabled={!mood}
                   className="btn-primary w-full sm:w-auto sm:min-w-[180px]"
                 >
-                  Получить
+                  Дальше →
                 </button>
               </div>
             </div>
@@ -244,6 +279,77 @@ export function OnboardingFlow({
         {step === 3 && (
           <motion.section
             key="s3"
+            {...fadeStep}
+            className="flex-1 flex flex-col py-6 lg:py-8"
+          >
+            <StepIndicator current={3} total={4} />
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center flex-1">
+              <div className="lg:col-span-7 flex justify-center lg:justify-end order-1">
+                <div className="gallery-wall p-4 sm:p-7 lg:p-10">
+                  <div className="hidden sm:block">
+                    <MACCard card={card} size="lg" showCaption />
+                  </div>
+                  <div className="sm:hidden">
+                    <MACCard card={card} size="md" showCaption />
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:mx-0 flex flex-col gap-6 order-2">
+                <div>
+                  <h2 className="type-display mb-2">
+                    Посмотри <em>сюда.</em>
+                  </h2>
+                  <p className="type-body">
+                    Эта карта пришла к тебе на сегодня. Побудь с ней пару секунд.
+                  </p>
+                </div>
+
+                <div>
+                  <MicroLabel className="text-muted mb-2">Что ты видишь?</MicroLabel>
+                  <textarea
+                    value={seeText}
+                    onChange={e => setSeeText(e.target.value)}
+                    placeholder="опиши, что бросается в глаза"
+                    rows={3}
+                    className="field-textarea"
+                  />
+                </div>
+
+                <div>
+                  <MicroLabel className="text-muted mb-2">Что в тебе отзывается?</MicroLabel>
+                  <textarea
+                    value={feelText}
+                    onChange={e => setFeelText(e.target.value)}
+                    placeholder="без оценок, просто отклик"
+                    rows={3}
+                    className="field-textarea"
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:justify-end">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="btn-secondary w-full sm:w-auto sm:min-w-[140px]"
+                  >
+                    ← Назад
+                  </button>
+                  <button
+                    onClick={generateOffering}
+                    disabled={!fieldsValid}
+                    className="btn-primary w-full sm:w-auto sm:min-w-[220px]"
+                  >
+                    Слова для тебя →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        )}
+
+        {step === 4 && (
+          <motion.section
+            key="s4"
             {...fadeStep}
             className="flex-1 flex items-center justify-center py-10 lg:py-16"
           >
@@ -265,22 +371,26 @@ export function OnboardingFlow({
               ) : error ? (
                 <div className="w-full">
                   <p className="type-body mb-5">{error}</p>
-                  <button onClick={generate} className="btn-secondary">
+                  <button onClick={generateOffering} className="btn-secondary">
                     Попробовать снова
                   </button>
                 </div>
               ) : (
-                <div className="fade-up">
+                <div className="fade-up flex flex-col items-center">
+                  <div className="mb-9 lg:mb-12">
+                    <MACCard card={card} size="sm" showCaption={false} />
+                  </div>
+
                   {mood && (
-                    <div className="flex items-center justify-center gap-3 mb-8 lg:mb-10">
-                      <MoodOrb hue={mood.hue} size={26} />
+                    <div className="flex items-center justify-center gap-3 mb-7 lg:mb-9">
+                      <MoodOrb hue={mood.hue} size={20} />
                       <MicroLabel className="text-muted">{mood.label}</MicroLabel>
                     </div>
                   )}
 
                   <p className="type-display">
                     <span className="text-accent italic">«</span>
-                    {compliment}
+                    {offering}
                     <span className="text-accent italic">»</span>
                   </p>
 
@@ -288,23 +398,13 @@ export function OnboardingFlow({
                     — {name || 'для тебя'}
                   </div>
 
-                  <div className="mt-12 lg:mt-16 flex flex-col items-center gap-6">
-                    <button
-                      onClick={() =>
-                        compliment && mood && onMetacard({ name: name.trim(), mood, compliment })
-                      }
-                      className="btn-primary w-full sm:w-auto sm:min-w-[260px]"
-                    >
-                      Метакарта дня →
+                  <div className="mt-12 lg:mt-16 flex items-center justify-center gap-7">
+                    <button onClick={share} className="action-link">
+                      {shareLabel}
                     </button>
-                    <div className="flex items-center gap-7">
-                      <button onClick={share} className="action-link">
-                        {shareLabel}
-                      </button>
-                      <button onClick={onNewSession} className="action-link">
-                        Заново
-                      </button>
-                    </div>
+                    <button onClick={onNewSession} className="action-link">
+                      Завершить ритуал
+                    </button>
                   </div>
                 </div>
               )}
