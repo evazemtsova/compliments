@@ -29,7 +29,7 @@ export function StepIndicator({
 }) {
   const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <div className="flex items-center gap-4 mb-12">
+    <div className="flex items-center justify-center gap-4 mb-12">
       <span
         className="type-micro text-accent"
         style={{ fontVariantNumeric: 'tabular-nums' }}

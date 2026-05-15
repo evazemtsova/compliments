@@ -160,12 +160,12 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
-            <div className="w-full max-w-[560px] mx-auto">
+            <div className="w-full max-w-[560px] mx-auto text-center">
               <StepIndicator current={1} total={4} />
               <h2 className="type-display mb-4">
                 Как тебя <em>зовут?</em>
               </h2>
-              <p className="type-body mb-8 max-w-md">
+              <p className="type-body mb-8 max-w-md mx-auto">
                 Имя нужно, чтобы слова звучали лично. Можно пропустить.
               </p>
 
@@ -176,10 +176,10 @@ export function RitualFlow({
                 onKeyDown={e => e.key === 'Enter' && setStep(2)}
                 placeholder="например, Ева"
                 maxLength={40}
-                className="field-input type-italic max-w-md"
+                className="field-input type-italic max-w-md mx-auto block"
               />
 
-              <div className="flex flex-col sm:flex-row gap-3 mt-12 sm:justify-end">
+              <div className="flex flex-col sm:flex-row gap-3 mt-12 sm:justify-center">
                 <button
                   onClick={() => {
                     setName('');
@@ -206,12 +206,12 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
-            <div className="w-full max-w-[560px] mx-auto">
+            <div className="w-full max-w-[560px] mx-auto text-center">
               <StepIndicator current={2} total={4} />
               <h2 className="type-display mb-4">
                 Как ты <em>сейчас?</em>
               </h2>
-              <p className="type-body mb-8 max-w-md">
+              <p className="type-body mb-8 max-w-md mx-auto">
                 {name
                   ? `${name}, выбери, что ближе к твоему состоянию.`
                   : 'Выбери, что ближе к твоему состоянию.'}
@@ -257,7 +257,7 @@ export function RitualFlow({
                 })}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 mt-10 sm:justify-end">
+              <div className="flex flex-col sm:flex-row gap-3 mt-10 sm:justify-center">
                 <button
                   onClick={() => setStep(1)}
                   className="btn-secondary w-full sm:w-auto sm:min-w-[160px]"
@@ -282,6 +282,7 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex flex-col py-6 lg:py-8"
           >
+            <StepIndicator current={3} total={4} />
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center flex-1">
               <div className="lg:col-span-7 flex justify-center lg:justify-end order-1">
                 <div className="gallery-wall p-4 sm:p-7 lg:p-10">
@@ -295,7 +296,6 @@ export function RitualFlow({
               </div>
 
               <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:mx-0 flex flex-col gap-6 order-2">
-                <StepIndicator current={3} total={4} />
                 <div>
                   <h2 className="type-display mb-4">
                     Посмотри <em>сюда.</em>
@@ -327,7 +327,7 @@ export function RitualFlow({
                   />
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 mt-2 sm:justify-end">
+                <div className="flex flex-col sm:flex-row gap-3 mt-2">
                   <button
                     onClick={() => setStep(2)}
                     className="btn-secondary w-full sm:w-auto sm:min-w-[140px]"
