@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { motion } from 'motion/react';
 
 export function Stage({ children }: { children: ReactNode }) {
   return (
@@ -27,39 +28,41 @@ export function StepIndicator({
   current: number;
   total: number;
 }) {
-  const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <div className="flex items-center justify-center gap-4 mb-12">
-      <span
-        className="type-micro text-accent"
-        style={{ fontVariantNumeric: 'tabular-nums' }}
-      >
-        {pad(current)}
-      </span>
-      <div className="flex items-center gap-4">
-        {Array.from({ length: total }).map((_, i) => {
-          const idx = i + 1;
-          const isCurrent = idx === current;
-          const reached = idx <= current;
-          return (
-            <span
-              key={i}
-              className="rounded-full transition-all duration-500 ease-out"
-              style={{
-                width: isCurrent ? 8 : 5,
-                height: isCurrent ? 8 : 5,
-                background: reached ? 'var(--color-accent)' : 'var(--color-line)',
-              }}
+    <div className="flex items-center justify-center gap-3 mb-8">
+      {Array.from({ length: total }).map((_, i) => {
+        const idx = i + 1;
+        const isCurrent = idx === current;
+        const isPast = idx < current;
+        const fill = isPast || isCurrent ? 'var(--color-accent)' : 'var(--color-line)';
+        return (
+          <motion.svg
+            key={i}
+            viewBox="0 0 12 18"
+            width={14}
+            height={20}
+            initial={false}
+            animate={{
+              scale: isCurrent ? 1 : isPast ? 0.68 : 0.52,
+              opacity: isCurrent ? 1 : isPast ? 0.55 : 0.35,
+              rotate: isCurrent ? 0 : isPast ? -18 : 8,
+            }}
+            transition={{
+              type: 'spring',
+              damping: 14,
+              stiffness: 170,
+              mass: 0.6,
+            }}
+            style={{ overflow: 'visible', transformOrigin: '50% 90%' }}
+            aria-hidden
+          >
+            <path
+              d="M6 1 C 10.5 5 10.5 12 6 17 C 1.5 12 1.5 5 6 1 Z"
+              fill={fill}
             />
-          );
-        })}
-      </div>
-      <span
-        className="type-micro text-muted"
-        style={{ fontVariantNumeric: 'tabular-nums' }}
-      >
-        {pad(total)}
-      </span>
+          </motion.svg>
+        );
+      })}
     </div>
   );
 }

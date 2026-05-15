@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type CardInfo = { title?: string; artist?: string; year?: string };
+type CardInfo = { title?: string; question?: string };
 
 const moodTexts: Record<string, string> = {
   tired: 'сегодня устаёт и пришло за мягкой опорой',
@@ -26,8 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const c: CardInfo = {
     title: typeof card?.title === 'string' ? card.title.slice(0, 200) : 'без названия',
-    artist: typeof card?.artist === 'string' ? card.artist.slice(0, 200) : 'неизвестно',
-    year: typeof card?.year === 'string' ? card.year.slice(0, 50) : '—',
+    question:
+      typeof card?.question === 'string' ? card.question.slice(0, 400) : '',
   };
   const safeSee = typeof see === 'string' ? see.trim().slice(0, 800) : '';
   const safeFeel = typeof feel === 'string' ? feel.trim().slice(0, 800) : '';
@@ -60,9 +60,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 Контекст ритуала.
 
 Тон встречи: человек ${moodText}.
-Карта, на которую смотрит: «${c.title}», ${c.artist}, ${c.year}.
-Что увидел: «${safeSee || '—'}»
-Что отозвалось: «${safeFeel || '—'}»
+Карта, на которую смотрит: «${c.title}».${c.question ? `\nВопрос карты: «${c.question}»` : ''}
+Ответ человека: «${safeSee || '—'}»
+Что отозвалось эмоционально: «${safeFeel || '—'}»
 
 Собери подношение.`;
 

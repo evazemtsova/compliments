@@ -169,19 +169,27 @@ body {
   border-bottom: 1px solid var(--color-line);
   padding: 6px 0 10px;
   font-family: var(--font-sans);
-  font-size: 16px;
   color: var(--color-text-primary);
   outline: none;
   line-height: 1.45;
   transition: border-color 0.2s ease;
 }
 
-.field-textarea { resize: none; }
+.field-textarea {
+  resize: none;
+  font-size: 14px;
+  field-sizing: content;
+  min-height: 1.5em;
+}
+.field-input { font-size: 16px; }
 
 .field-textarea:focus,
 .field-input:focus { border-bottom-color: var(--color-accent); }
 
-.field-textarea::placeholder,
+.field-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
 .field-input::placeholder {
   color: var(--color-text-muted);
   font-style: italic;

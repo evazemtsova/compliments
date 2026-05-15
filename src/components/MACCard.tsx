@@ -3,9 +3,9 @@ import type { Card } from '../lib/deck';
 type Size = 'sm' | 'md' | 'lg';
 
 const widths: Record<Size, string> = {
-  sm: '180px',
-  md: '240px',
-  lg: 'clamp(260px, 36vw, 420px)',
+  sm: '160px',
+  md: '220px',
+  lg: 'clamp(240px, 26vw, 340px)',
 };
 
 const ASPECT = 180 / 248;
@@ -59,9 +59,6 @@ export function MACCard({
       {showCaption && (
         <figcaption className="text-center mt-3 px-1">
           <div className="type-caption">«{card.title}»</div>
-          <div className="type-micro text-muted mt-1">
-            {card.artist} · {card.year}
-          </div>
         </figcaption>
       )}
     </figure>

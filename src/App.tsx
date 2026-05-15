@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState } from 'react';
 import { RitualFlow, type RitualResult } from './screens/RitualFlow';
 import PetalsBackground from './components/PetalsBackground';
 import { Header } from './components/Header';
-import { Footer } from './components/Footer';
 import { todayInfo } from './lib/date';
 import { moodById, type Mood, type MoodId } from './lib/moods';
 import { readLS, writeLS } from './lib/storage';
@@ -75,7 +74,6 @@ export default function App() {
             />
           </Fragment>
         </main>
-        <Footer />
       </div>
     </>
   );
