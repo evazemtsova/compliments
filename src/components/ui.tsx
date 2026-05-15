@@ -27,7 +27,6 @@ export function StepIndicator({
   current: number;
   total: number;
 }) {
-  const pct = (current / total) * 100;
   const pad = (n: number) => String(n).padStart(2, '0');
   return (
     <div className="flex items-center gap-4 mb-12">
@@ -37,15 +36,23 @@ export function StepIndicator({
       >
         {pad(current)}
       </span>
-      <div className="relative h-px flex-1 max-w-[200px]">
-        <div
-          className="absolute inset-0"
-          style={{ background: 'var(--color-line)' }}
-        />
-        <div
-          className="absolute inset-y-0 left-0 transition-all duration-500 ease-out"
-          style={{ width: `${pct}%`, background: 'var(--color-accent)' }}
-        />
+      <div className="flex items-center gap-4">
+        {Array.from({ length: total }).map((_, i) => {
+          const idx = i + 1;
+          const isCurrent = idx === current;
+          const reached = idx <= current;
+          return (
+            <span
+              key={i}
+              className="rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: isCurrent ? 8 : 5,
+                height: isCurrent ? 8 : 5,
+                background: reached ? 'var(--color-accent)' : 'var(--color-line)',
+              }}
+            />
+          );
+        })}
       </div>
       <span
         className="type-micro text-muted"
