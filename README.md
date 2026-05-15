@@ -1,5 +1,9 @@
 <div align="center">
   <img src="docs/banner.webp" alt="Тихий ритуал самоподдержки" width="100%" />
+  <br /><br />
+  <a href="https://compliments-rose.vercel.app/">
+    <img src="https://img.shields.io/badge/открыть_ритуал-→-a38a58?style=for-the-badge&labelColor=1a1612" alt="Открыть ритуал" />
+  </a>
 </div>
 
 # Ежедневный комплимент
