@@ -126,13 +126,13 @@ export function RitualFlow({
                 <MicroLabel className="text-accent mb-5 lg:mb-7">
                   Тихий ритуал самоподдержки
                 </MicroLabel>
-                <h1 className="type-display mb-6">
+                <h1 className="type-display mb-4">
                   Это только твоя <em>минута</em>…
                 </h1>
                 <p className="type-body max-w-md mx-auto lg:mx-0">
                   Четыре тихих шага: настроишься, посмотришь на одну карту, и слова, родившиеся из твоего же взгляда, вернутся к тебе.
                 </p>
-                <div className="mt-9 lg:mt-11">
+                <div className="mt-8">
                   <button
                     onClick={() => setStep(1)}
                     className="btn-primary w-full sm:w-auto sm:px-12"
@@ -160,12 +160,12 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
-            <div className="w-full max-w-[680px] mx-auto">
+            <div className="w-full max-w-[560px] mx-auto">
               <StepIndicator current={1} total={4} />
-              <h2 className="type-display mb-3">
+              <h2 className="type-display mb-4">
                 Как тебя <em>зовут?</em>
               </h2>
-              <p className="type-body mb-7 max-w-md">
+              <p className="type-body mb-8 max-w-md">
                 Имя нужно, чтобы слова звучали лично. Можно пропустить.
               </p>
 
@@ -206,9 +206,9 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex items-center justify-center py-8 lg:py-0"
           >
-            <div className="w-full max-w-[920px] mx-auto">
+            <div className="w-full max-w-[560px] mx-auto">
               <StepIndicator current={2} total={4} />
-              <h2 className="type-display mb-3">
+              <h2 className="type-display mb-4">
                 Как ты <em>сейчас?</em>
               </h2>
               <p className="type-body mb-8 max-w-md">
@@ -282,7 +282,6 @@ export function RitualFlow({
             {...fadeStep}
             className="flex-1 flex flex-col py-6 lg:py-8"
           >
-            <StepIndicator current={3} total={4} />
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center flex-1">
               <div className="lg:col-span-7 flex justify-center lg:justify-end order-1">
                 <div className="gallery-wall p-4 sm:p-7 lg:p-10">
@@ -296,8 +295,9 @@ export function RitualFlow({
               </div>
 
               <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:mx-0 flex flex-col gap-6 order-2">
+                <StepIndicator current={3} total={4} />
                 <div>
-                  <h2 className="type-display mb-2">
+                  <h2 className="type-display mb-4">
                     Посмотри <em>сюда.</em>
                   </h2>
                   <p className="type-body">
@@ -354,6 +354,7 @@ export function RitualFlow({
             className="flex-1 flex items-center justify-center py-10 lg:py-16"
           >
             <div className="w-full max-w-[820px] mx-auto text-center">
+              <StepIndicator current={4} total={4} />
               {loading ? (
                 <div className="flex flex-col items-center gap-5">
                   <div
@@ -371,7 +372,7 @@ export function RitualFlow({
               ) : error ? (
                 <div className="w-full">
                   <p className="type-body mb-5">{error}</p>
-                  <button onClick={generateOffering} className="btn-secondary">
+                  <button onClick={generateOffering} className="btn-primary">
                     Попробовать снова
                   </button>
                 </div>
@@ -402,7 +403,7 @@ export function RitualFlow({
                     <button onClick={share} className="action-link">
                       {shareLabel}
                     </button>
-                    <button onClick={onNewSession} className="action-link">
+                    <button onClick={onNewSession} className="btn-ghost">
                       Завершить ритуал
                     </button>
                   </div>

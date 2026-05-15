@@ -30,7 +30,7 @@ export function StepIndicator({
   const pct = (current / total) * 100;
   const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <div className="flex items-center gap-4 mb-10 lg:mb-14">
+    <div className="flex items-center gap-4 mb-12">
       <span
         className="type-micro text-accent"
         style={{ fontVariantNumeric: 'tabular-nums' }}
