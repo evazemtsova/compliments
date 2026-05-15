@@ -59,7 +59,10 @@ export function OfferingStep({
               </div>
             )}
 
-            <p className="type-display">
+            <p
+              className="type-display"
+              style={{ fontSize: 'clamp(22px, 3.6vw, 40px)' }}
+            >
               <span className="text-accent italic">«</span>
               {offering}
               <span className="text-accent italic">»</span>
