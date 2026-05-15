@@ -1,136 +1,142 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Ежедневный комплимент
 
-# Ежедневный Комплимент (Daily Compliment)
+Тихий ритуал самоподдержки. Минималистичное React-приложение, в котором
+человек проходит четыре шага — имя, настроение, метафорическая карта с
+вопросом — и получает короткое подношение, написанное Claude на основе
+его же ответов.
 
-A minimalist React application that displays a daily compliment based on the day of the year. Built with React, TypeScript, Vite, Tailwind CSS, and Motion for elegant animations.
+## Стек
 
-View your app in AI Studio: https://ai.studio/apps/2b7e23e9-9fb7-49ff-90ed-da0f3928c77e
+- React 19 + TypeScript + Vite 6
+- Tailwind CSS 4
+- Motion (анимации лепестков-индикатора, переходы шагов)
+- Anthropic Claude (Haiku 4.5) через серверный endpoint `/api/synthesis`
+- Vercel — продакшен-хостинг и serverless API
 
-## Features
+## Как устроен ритуал
 
-- 📅 **Daily Compliment**: Displays a unique compliment for each day of the year (365 days)
-- 🎨 **Swiss Design Aesthetic**: Clean, minimalist UI with structural lines and elegant typography
-- ✨ **Smooth Animations**: Powered by Motion (Framer Motion) for elegant entrance animations
-- 📱 **Responsive Design**: Works seamlessly on all device sizes
-- 🔗 **Share Functionality**: Share the daily compliment via native share or clipboard
-- 🌐 **Russian Language**: Interface and compliments in Russian
+Один экран `RitualFlow` (оркестратор) с пятью под-экранами:
 
-## Tech Stack
+1. **Интро** — фибоначчи-цветок + кнопка «Начать ритуал»
+2. **Имя** — необязательное, ритуал работает и без него
+3. **Настроение** — одна из четырёх акварельных эмоций (calm, happy, anxious, sad)
+4. **Карта** — случайная карта из колоды 66 акварельных образов, у каждой
+   своя «Заметка» — рефлексивный вопрос. Пользователь отвечает текстом
+   и выбирает теги-эмоции из словаря на 20 слов.
+5. **Подношение** — Claude собирает 1-2 предложения, опираясь на состояние,
+   карту, ответы и выбранные теги. Имя выводится накртным курсивом сверху
+   как обращение.
 
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS 4** - Styling
-- **Motion** - Animation library
-- **Lucide React** - Icons
-- **Google Generative AI** - AI integration support
+Колода (карты + вопросы) описана в [public/mak_deck.md](public/mak_deck.md).
+Источник правды для `src/lib/deck.ts`.
 
-## Prerequisites
+## Структура
 
-- Node.js (v18 or higher recommended)
-- npm or yarn
+```
+src/
+├── App.tsx                       # внешний контейнер, localStorage
+├── screens/
+│   ├── RitualFlow.tsx            # оркестратор шагов + state
+│   └── steps/
+│       ├── IntroStep.tsx
+│       ├── NameStep.tsx
+│       ├── MoodStep.tsx
+│       ├── CardStep.tsx          # карта + вопрос + textarea + feel-trigger
+│       └── OfferingStep.tsx      # loading / error / финальное подношение
+├── components/
+│   ├── FeelTagsSheet.tsx         # bottom-sheet модалка с тегами
+│   ├── MACCard.tsx               # картинка-карта в рамке
+│   ├── PetalsBackground.tsx      # canvas-лепестки на фоне
+│   ├── PhyllotaxisOrb.tsx        # фибоначчи-цветок (интро + лоадинг)
+│   └── ui.tsx                    # Stage, StepIndicator, LoadingDots, MicroLabel
+├── lib/
+│   ├── deck.ts                   # 66 карт с вопросами
+│   ├── feelings.ts               # 20 emotion-тегов (alphabetical)
+│   ├── moods.ts                  # 4 настроения с акварельными иконками
+│   ├── date.ts                   # dayOfYear()
+│   ├── motionPresets.ts          # fadeStep transition
+│   └── storage.ts                # readLS / writeLS обёртки
+├── styles/
+│   └── typography.css            # 4 type-роли (display, body, caption, micro)
+└── index.css                     # CSS-переменные, glass-классы, кнопки
 
-## Getting Started
+api/
+└── synthesis.ts                  # Vercel serverless → Anthropic API
 
-### 1. Install Dependencies
+public/
+├── pictures/                     # 66 WebP MAC-карт (≈30 КБ каждая)
+├── emotions/                     # 4 WebP эмоции для step 2
+└── mak_deck.md                   # источник вопросов + image prompts
+```
+
+## Команды
 
 ```bash
 npm install
+npm run dev        # vite на http://localhost:3000
+npm run build      # prod-сборка в dist/
+npm run preview    # просмотр prod-билда локально
+npm run lint       # tsc --noEmit (strict)
 ```
 
-### 2. Configure Environment Variables
+## API
 
-Copy the example environment file and configure your API keys:
+`POST /api/synthesis` принимает:
+
+```ts
+{
+  name: string;
+  mood: 'calm' | 'happy' | 'anxious' | 'sad';
+  card: { title: string; question: string };
+  see: string;       // ответ пользователя на вопрос карты
+  feel: string;      // comma-joined список тегов
+}
+```
+
+Отвечает `{ offering: string }` или `{ error: string }` со статусом 502
+при ошибке Anthropic.
+
+В dev-режиме endpoint мокается Vite-middleware с задержкой 1.2 сек и
+случайным подношением из небольшого набора — это позволяет дизайнить
+finale без обращений к реальному API.
+
+## Окружение
+
+`.env.local`:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+## Локальное хранилище
+
+Один ритуал в день. Все ключи под префиксом `compliment:`:
+
+- `compliment:name` — имя (живёт между днями)
+- `compliment:onboardedDay` — день года, в который завершён ритуал
+- `compliment:todayMoodId`, `:todaySee`, `:todayFeel` — ответы пользователя
+- `compliment:todayCardId` — id выпавшей карты
+- `compliment:todayOffering` — финальный текст от Claude
+
+Если зайти повторно в тот же день после завершения — показывается то же
+подношение с той же картой. Кнопка «Завершить ритуал» очищает день.
+До завершения карта рандомная при каждом заходе.
+
+## Оптимизация картинок
+
+Скрипт [scripts/optimize-images.mjs](scripts/optimize-images.mjs)
+конвертирует все PNG в `public/pictures/` и `public/emotions/` в WebP
+с ресайзом до разумного размера. Запуск:
 
 ```bash
-cp .env.example .env.local
+node scripts/optimize-images.mjs
 ```
 
-Edit `.env.local` and add your Gemini API key:
+После запуска обнови расширения `.png` → `.webp` в `src/lib/deck.ts` и
+`src/lib/moods.ts`.
 
-```env
-GEMINI_API_KEY="your-gemini-api-key-here"
-APP_URL="http://localhost:3000"
-```
+## Деплой
 
-> **Note**: Get your Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-
-### 3. Run Development Server
-
-```bash
-npm run dev
-```
-
-The app will start at `http://localhost:3000`
-
-## Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server (port 3000) |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run clean` | Remove build artifacts |
-| `npm run lint` | Run TypeScript type checking |
-
-## Project Structure
-
-```
-├── public/              # Static assets
-├── src/
-│   ├── App.tsx         # Main application component
-│   ├── main.tsx        # Application entry point
-│   ├── index.css       # Global styles and Tailwind config
-│   └── lib/
-│       └── compliments.ts  # Daily compliments data
-├── .env.example        # Environment variables template
-├── index.html          # HTML entry point
-├── package.json        # Dependencies and scripts
-├── tsconfig.json       # TypeScript configuration
-└── vite.config.ts      # Vite configuration
-```
-
-## How It Works
-
-The app calculates the current day of the year (1-365) and displays the corresponding compliment from the predefined list. The compliment rotates annually, ensuring the same day always shows the same message.
-
-### Share Feature
-
-- On mobile devices with share support: Opens native share dialog
-- On desktop or unsupported browsers: Copies text to clipboard with toast notification
-
-## Deployment
-
-### Deploy to AI Studio
-
-1. View and manage your app: https://ai.studio/apps/2b7e23e9-9fb7-49ff-90ed-da0f3928c77e
-2. Secrets (like `GEMINI_API_KEY`) are automatically injected at runtime from AI Studio secrets
-
-### Manual Deployment
-
-Build the production bundle:
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist/` directory, ready to be deployed to any static hosting service.
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## License
-
-This project is private and intended for use with Google AI Studio.
-
-## Acknowledgments
-
-- Built with [Google AI Studio](https://ai.studio/)
-- Icons by [Lucide](https://lucide.dev/)
-- Animations by [Motion](https://motion.dev/)
+Любой push на main триггерит Vercel. Serverless-функция `api/synthesis.ts`
+автоматически подцепляет `@vercel/node` типы и `ANTHROPIC_API_KEY` из
+Project Settings.

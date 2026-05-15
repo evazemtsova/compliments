@@ -83,15 +83,3 @@ export function LoadingDots() {
   );
 }
 
-export function MoodOrb({ hue, size = 28 }: { hue: number; size?: number }) {
-  return (
-    <span
-      className="rounded-full inline-block shrink-0"
-      style={{
-        width: size,
-        height: size,
-        background: `radial-gradient(circle at 35% 30%, oklch(0.88 0.08 ${hue}), oklch(0.55 0.10 ${(hue + 30) % 360}))`,
-      }}
-    />
-  );
-}

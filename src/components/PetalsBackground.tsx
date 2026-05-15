@@ -26,7 +26,7 @@ function edgeBiasedX(width: number) {
 }
 
 function petalCount() {
-  return window.innerWidth >= 1024 ? 10 : 14;
+  return window.innerWidth >= 1024 ? 18 : 22;
 }
 
 export default function PetalsBackground() {
@@ -60,12 +60,12 @@ export default function PetalsBackground() {
       petals = Array.from({ length: petalCount() }, () => ({
         x: edgeBiasedX(w),
         y: Math.random() * h,
-        size: 8 + Math.random() * 10,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: 0.15 + Math.random() * 0.25,
+        size: 9 + Math.random() * 14,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: 0.25 + Math.random() * 0.5,
         angle: Math.random() * Math.PI * 2,
-        spin: (Math.random() - 0.5) * 0.008,
-        opacity: 0.12 + Math.random() * 0.22,
+        spin: (Math.random() - 0.5) * 0.018,
+        opacity: 0.2 + Math.random() * 0.3,
         color: Math.random() > 0.5 ? PINK : BEIGE,
       }));
     };
@@ -84,7 +84,7 @@ export default function PetalsBackground() {
       for (const p of petals) {
         if (!reduceMotion) {
           p.y += p.vy;
-          p.x += p.vx + Math.sin(p.y * 0.01) * 0.2;
+          p.x += p.vx + Math.sin(p.y * 0.008) * 0.45;
           p.angle += p.spin;
 
           if (p.y > h + 20) {

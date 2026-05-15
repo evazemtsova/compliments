@@ -1,16 +1,15 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   TYPOGRAPHY — exactly FIVE roles. Do not add a sixth.
+   TYPOGRAPHY — exactly FOUR roles. Do not add a fifth.
 
    Every text element in the app composes one of these classes. If a new
    piece of UI needs sizing that doesn't fit, adjust the existing role here
    (and accept the ripple) rather than spawning yet another class.
 
      1. .type-display  — big serif headlines & hero quotes (h1/h2/quote)
-     2. .type-italic   — decorative italic serif (name input, hero italic)
-     3. .type-body     — uppercase tracked sans, paragraph rhythm (1.6 lh)
+     2. .type-body     — uppercase tracked sans, paragraph rhythm (1.6 lh)
                          used for subtitle/intro copy under headings
-     4. .type-caption  — small italic serif (questions to user, soft hints)
-     5. .type-micro    — uppercase tracked sans, single-line (1.0 lh)
+     3. .type-caption  — italic serif, focal questions to user, soft hints
+     4. .type-micro    — uppercase tracked sans, single-line (1.0 lh)
                          for inline labels, dates, chips
 
    .type-body and .type-micro share family/size/tracking. Difference is
@@ -29,14 +28,6 @@
   text-wrap: pretty;
 }
 
-.type-italic {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(24px, 2.8vw, 32px);
-  line-height: 1.25;
-}
-
 .type-body {
   font-family: var(--font-sans);
   font-weight: 500;
@@ -51,8 +42,8 @@
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 21px;
+  line-height: 1.35;
   color: var(--color-text-muted);
 }
 

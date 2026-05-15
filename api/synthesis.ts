@@ -3,17 +3,20 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 type CardInfo = { title?: string; question?: string };
 
 const moodTexts: Record<string, string> = {
-  tired: 'сегодня устаёт и пришло за мягкой опорой',
-  calm: 'сегодня в ровном, хорошем состоянии',
+  calm: 'сегодня в спокойном, ровном состоянии',
+  happy: 'сегодня в радости, в открытости',
   anxious: 'сегодня тревожится и ищет заземления',
-  seeking: 'сегодня ищет ясности о себе',
-  love: 'сегодня открыто сердцем',
-  flow: 'сегодня в собранности и движении',
+  sad: 'сегодня в грусти, нуждается в мягкой поддержке',
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured' });
   }
 
   const { card, see, feel, name, mood } = (req.body ?? {}) as {
@@ -66,24 +69,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 Собери подношение.`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 220,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 220,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
 
-  const data = await response.json();
-  const offering =
-    data.content?.[0]?.text?.trim() ??
-    'В тебе есть тихое внимание к собственным образам — этого уже достаточно.';
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      return res
+        .status(502)
+        .json({ error: `Anthropic returned ${response.status}: ${errText.slice(0, 200)}` });
+    }
 
-  return res.status(200).json({ offering });
+    const data = await response.json();
+    const offering = data?.content?.[0]?.text?.trim();
+    if (!offering) {
+      return res.status(502).json({ error: 'Empty response from Anthropic' });
+    }
+
+    return res.status(200).json({ offering });
+  } catch (err) {
+    return res
+      .status(502)
+      .json({ error: err instanceof Error ? err.message : 'Upstream error' });
+  }
 }
